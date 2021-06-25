@@ -1,7 +1,85 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager NavigationManager
+@implements IDisposable
 
-Welcome to your new app.
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<h3>Room</h3>
+<div class="justify-content-center">
+    <div class="col-6">
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Room Name</label>
+            <div class="input-group col-sm-10">
+                <input ype="text" class="form-control" @bind="model.Name" placeholder="Room Name" t>
+                <div class="input-group-append">
+                    <button @onclick="GenerateGuid" class="btn btn-success">Guid</button>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">User Name</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" @bind="userInput" placeholder="User Name">
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-10">
+                <button @onclick="Create" class="btn btn-primary" disabled="@(!IsConnected)">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ul id="messagesList">
+    @foreach (var message in messages)
+    {
+        <li>@message</li>
+    }
+</ul>
+
+@code {
+    private ScrumPoker.UI.Model.Room model = new ScrumPoker.UI.Model.Room()
+    {
+        Users = new List<Model.User>()
+    };
+    private HubConnection hubConnection;
+    private List<string> messages = new List<string>();
+    private string userInput;
+    private string messageInput;
+
+    private void GenerateGuid()
+    {
+        model.Name = Guid.NewGuid().ToString();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/roomhub"))
+            .Build();
+
+        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        {
+            var encodedMsg = $"{user}: {message}";
+            messages.Add(encodedMsg);
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    async Task Create()
+    {
+        await hubConnection.SendAsync("JoinRoomAsync", model, userInput);
+    }
+
+    public bool IsConnected =>
+        hubConnection.State == HubConnectionState.Connected;
+
+
+    public void Dispose()
+    {
+        _ = hubConnection.DisposeAsync();
+    }
+}
