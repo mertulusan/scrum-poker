@@ -13,8 +13,11 @@ namespace ScrumPoker.UI.Model
         public string Name { get; set; }
 
         public DateTime EndDate { get; set; }
+
         public JiraTask Task { get; set; }
+
         public List<User> Users { get; set; }
-              
+
+        public List<JiraTask> TaskList { get; set; }
     }
 }
