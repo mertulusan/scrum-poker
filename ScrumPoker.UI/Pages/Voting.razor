@@ -3,7 +3,7 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @using ScrumPoker.Model.Model
 @using System.Collections.Generic
-@using ScrumPoker.Model.Enum
+@using ScrumPoker.Model.Enums
 @using ScrumPoker.Model
 @using System
 
@@ -13,7 +13,7 @@
     .card {
         height: 225px;
         max-height: 225px;
-        width 175px;
+        width: 175px;
         max-width: 175px;
     }
 
@@ -48,14 +48,14 @@
 
 
 
-<h1>Current User = @user.Name</h1>
+<h1>Current User = @user.Name (@user.Role.GetEnumDescription())</h1>
 
 <h2 class="h5">Selected card: @selectedCard.GetEnumDescription()</h2>
 
 <ul>
     @foreach (var user in votingRoom.Users)
     {
-        <li>@user.Name : @user.Point</li>
+    <li>@user.Name (@user.Role.GetEnumDescription()): @user.Point</li>
     }
 </ul>
 
@@ -111,14 +111,14 @@
                                  .Cast<CardPoints>()
                                  .ToList();
 
-    private ScrumPoker.Model.Enum.CardPoints selectedCard;
+    private CardPoints selectedCard;
 
-    private void SetSelectedPoint(ScrumPoker.Model.Enum.CardPoints card)
+    private void SetSelectedPoint(CardPoints card)
     {
         selectedCard = card;
     }
 
-    private async Task Send(User user, ScrumPoker.Model.Enum.CardPoints card)
+    private async Task Send(User user, CardPoints card)
     {
         await votinghubConnection.SendAsync("SendMessageRoomMateAsync", votingRoom.Name, user, selectedCard);
     }

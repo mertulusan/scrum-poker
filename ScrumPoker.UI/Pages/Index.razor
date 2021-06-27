@@ -2,6 +2,8 @@
 
 @using Microsoft.AspNetCore.SignalR.Client
 @using ScrumPoker.Model.Model
+@using ScrumPoker.Model.Enums
+@using ScrumPoker.Model
 @inject NavigationManager NavigationManager
 @implements IDisposable
 @using Microsoft.AspNetCore.WebUtilities;
@@ -29,6 +31,16 @@
                 </div>
             </div>
             <div class="form-group row">
+                <label class="col-sm-2">Role :</label>
+                @foreach (RoleType item in Enum.GetValues(typeof(RoleType)))
+                {
+                    <div class="col-sm-2">
+                        <input type="radio" name="Role" id="@item" value="@item" checked=@(item==RoleType.DEV) @onchange=@(()=>role=item) />
+                        <label for="@item">@item.GetEnumDescription()</label>
+                    </div>
+                }
+            </div>
+            <div class="form-group row">
                 <div class="col-sm-10">
                     <button @onclick="Create" class="btn btn-primary" disabled="@(!IsConnected)">Create</button>
                 </div>
@@ -51,6 +63,7 @@ else
     private HubConnection hubConnection;
     private string userName;
     User user;
+    RoleType role= RoleType.DEV;
 
     private void GenerateGuid()
     {
@@ -74,7 +87,12 @@ else
 
     async Task Create()
     {
-        user = new User() { Id = Guid.NewGuid(), Name = userName };
+        user = new User()
+        {
+            Id = Guid.NewGuid(),
+            Name = userName,
+            Role = role
+        };
         await hubConnection.SendAsync("JoinRoomAsync", room, user);
     }
 
