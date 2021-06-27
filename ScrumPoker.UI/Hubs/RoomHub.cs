@@ -35,8 +35,8 @@ namespace ScrumPoker.UI.Hubs
         public async Task SendMessageRoomMateAsync(string roomName, User user, CardPoints cardPoint)
         {
             Room room = memoryCache.Get<Room>(roomName);
-            var asd = room.Users.FirstOrDefault(p => p.Id == user.Id);
-            asd.Point = (int)cardPoint;
+            var roomUser = room.Users.FirstOrDefault(p => p.Id == user.Id);
+            roomUser.Point = (int)cardPoint;
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ScrumPoker.Model.Enum;
+using System;
 
 namespace ScrumPoker.Model.Model
 {
@@ -7,5 +8,6 @@ namespace ScrumPoker.Model.Model
         public int Id { get; set; }
         public string Name { get; set; }
         public decimal Average { get; set; }
+        public JiraTaskStatus Status { get; set; }
     }
 }
