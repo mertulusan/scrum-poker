@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace ScrumPoker.UI.Model
+namespace ScrumPoker.Model.Model
 {
     public class User
     {

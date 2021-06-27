@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace ScrumPoker.UI.Model
+namespace ScrumPoker.Model.Model
 {
     public class Room
     {
@@ -14,10 +14,10 @@ namespace ScrumPoker.UI.Model
 
         public DateTime EndDate { get; set; }
 
-        public JiraTask Task { get; set; }
+        public JiraTask VotingTask { get; set; }
 
         public List<User> Users { get; set; }
 
-        public List<JiraTask> TaskList { get; set; }
+        public List<JiraTask> VotedTaskList { get; set; }
     }
 }

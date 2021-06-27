@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ScrumPoker.UI.Model
+namespace ScrumPoker.Model.Model
 {
     public class JiraTask
     {

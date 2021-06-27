@@ -1,56 +1,60 @@
 ﻿@page "/"
 
 @using Microsoft.AspNetCore.SignalR.Client
+@using ScrumPoker.Model.Model
 @inject NavigationManager NavigationManager
 @implements IDisposable
+@using Microsoft.AspNetCore.WebUtilities;
 
 
-<h3>Room</h3>
-<div class="justify-content-center">
-    <div class="col-6">
-        <div class="form-group row">
-            <label class="col-sm-2 col-form-label">Room Name</label>
-            <div class="input-group col-sm-10">
-                <input ype="text" class="form-control" @bind="model.Name" placeholder="Room Name" t>
-                <div class="input-group-append">
-                    <button @onclick="GenerateGuid" class="btn btn-success">Guid</button>
+@*ToDo : Bu kontrol düzenlenmeli*@
+@if (!room.Users.Any())
+{
+    <h3>Room</h3>
+    <div class="justify-content-center">
+        <div class="col-6">
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Room Name</label>
+                <div class="input-group col-sm-10">
+                    <input ype="text" class="form-control" @bind="room.Name" placeholder="Room Name" t>
+                    <div class="input-group-append">
+                        <button @onclick="GenerateGuid" class="btn btn-success">Guid</button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">User Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" @bind="userName" placeholder="User Name">
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-10">
+                    <button @onclick="Create" class="btn btn-primary" disabled="@(!IsConnected)">Create</button>
                 </div>
             </div>
         </div>
-        <div class="form-group row">
-            <label class="col-sm-2 col-form-label">User Name</label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" @bind="userInput" placeholder="User Name">
-            </div>
-        </div>
-        <div class="form-group row">
-            <div class="col-sm-10">
-                <button @onclick="Create" class="btn btn-primary" disabled="@(!IsConnected)">Create</button>
-            </div>
-        </div>
     </div>
-</div>
+}
+else
+{
+    <Voting votingRoom=room votinghubConnection=hubConnection user=user />
+}
 
-<ul id="messagesList">
-    @foreach (var message in messages)
-    {
-        <li>@message</li>
-    }
-</ul>
 
 @code {
-    private ScrumPoker.UI.Model.Room model = new ScrumPoker.UI.Model.Room()
+    private Room room = new Room
     {
-        Users = new List<Model.User>()
+        Users = new List<User>(),
+        VotedTaskList = new List<JiraTask>()
     };
     private HubConnection hubConnection;
-    private List<string> messages = new List<string>();
-    private string userInput;
-    private string messageInput;
+    private string userName;
+    User user;
 
     private void GenerateGuid()
     {
-        model.Name = Guid.NewGuid().ToString();
+        room.Name = Guid.NewGuid().ToString();
     }
 
     protected override async Task OnInitializedAsync()
@@ -59,10 +63,9 @@
             .WithUrl(NavigationManager.ToAbsoluteUri("/roomhub"))
             .Build();
 
-        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        hubConnection.On<Room>("ReceiveMessage", (data) =>
         {
-            var encodedMsg = $"{user}: {message}";
-            messages.Add(encodedMsg);
+            room = data;
             StateHasChanged();
         });
 
@@ -71,7 +74,8 @@
 
     async Task Create()
     {
-        await hubConnection.SendAsync("JoinRoomAsync", model, userInput);
+        user = new User() { Id = Guid.NewGuid(), Name = userName };
+        await hubConnection.SendAsync("JoinRoomAsync", room, user);
     }
 
     public bool IsConnected =>
