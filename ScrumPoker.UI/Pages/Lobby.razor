@@ -1,0 +1,64 @@
+﻿@page "/lobby"
+<h3>Lobby</h3>
+
+<style type="text/css">
+    .user-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .user-card {
+        border-radius: 5px;
+        height: 140px;
+        max-width: 160px;
+        width: 45vw;
+        font-size: 18px;
+        font-weight: 500;
+        letter-spacing: 0;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        position: relative;
+        margin: 15px;
+    }
+</style>
+
+<div class="container">
+    <div class="row mb-5">
+        <div class="col">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3 class="card-title">Room: Hebele gübele</h3>
+
+                    <div class="row">
+                        <div class="col">
+                            <button type="button" class="btn btn-success btn-lg">Start Voting</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @for (int i = 0; i < users.Count; i += 5)
+    {
+        <div class="row d-flex justify-content-center">
+            @foreach (var user in users.Skip(i).Take(5))
+            {
+                <div class="user-list">
+                    <div class="user-card border">
+                        <h5 class="card-title">@user</h5>
+                        <span class="badge rounded-pill bg-success text-white">online</span>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    List<string> users = new List<string> { "User 1", "User 2", "User 3", "User 4", "User 5" };
+}
