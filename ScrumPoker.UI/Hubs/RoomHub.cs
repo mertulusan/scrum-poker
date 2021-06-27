@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
-using ScrumPoker.UI.Model;
+using ScrumPoker.Model.Enum;
+using ScrumPoker.Model.Model;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ScrumPoker.UI.Hubs
@@ -14,36 +17,33 @@ namespace ScrumPoker.UI.Hubs
             this.memoryCache = memoryCache;
         }
 
-        public async Task JoinRoomAsync(Room model, string userInput)
+        public async Task JoinRoomAsync(Room model, User user)
         {
-            User user = new User() { Name = userInput };
-
             Room room = memoryCache.Get<Room>(model.Name);
-            if (room != null)
-            {
-                room.Users.Add(user);
-                await Clients.Group(model.Name).SendAsync("ReceiveMessage", userInput, $"{Context.ConnectionId} has joined the group {model.Name}.");
-            }
-            else
+            if (room == null)
             {
                 model.Id = System.Guid.NewGuid();
                 model.EndDate = System.DateTime.Now.AddMinutes(20);
-                model.Users.Add(user);
 
-                memoryCache.Set<Room>(model.Name, model);
-                await Groups.AddToGroupAsync(Context.ConnectionId, model.Name);
+                room = memoryCache.Set<Room>(model.Name, model);
             }
+            room.Users.Add(user);
+            await Groups.AddToGroupAsync(Context.ConnectionId, room.Name);
+            await Clients.Group(room.Name).SendAsync("ReceiveMessage", room);
         }
 
-        public async Task SendMessageRoomMateAsync(string roomName)
+        public async Task SendMessageRoomMateAsync(string roomName, User user, CardPoints cardPoint)
         {
-            await Clients.Group(roomName).SendAsync("Send", $"{Context.ConnectionId} has joined the group {roomName}.");
+            Room room = memoryCache.Get<Room>(roomName);
+            var roomUser = room.Users.FirstOrDefault(p => p.Id == user.Id);
+            roomUser.Point = (int)cardPoint;
+            await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
 
-        public async Task ReceiverMessageRoomMateAsync(string roomName)
-        {
-            await Clients.Group(roomName).SendAsync("Receiver", $"{Context.ConnectionId} has joined the group {roomName}.");
-        }
+        //public async Task ReceiverMessageRoomMateAsync(string roomName)
+        //{
+        //    await Clients.Group(roomName).SendAsync("Receiver", $"{Context.ConnectionId} has joined the group {roomName}.");
+        //}
 
         public async Task LeaveRoomAsync(string groupName)
         {

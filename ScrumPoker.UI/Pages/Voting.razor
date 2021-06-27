@@ -1,5 +1,11 @@
 ﻿@page "/voting"
 @inject IJSRuntime JsRuntime
+@using Microsoft.AspNetCore.SignalR.Client
+@using ScrumPoker.Model.Model
+@using System.Collections.Generic
+@using ScrumPoker.Model.Enum
+@using ScrumPoker.Model
+@using System
 
 <h3>Voting</h3>
 
@@ -40,7 +46,19 @@
     }
 </style>
 
-<h1 class="h5">Selected card: @selectedCard</h1>
+
+
+<h1>Current User = @user.Name</h1>
+
+<h2 class="h5">Selected card: @selectedCard.GetEnumDescription()</h2>
+
+<ul>
+    @foreach (var user in votingRoom.Users)
+    {
+        <li>@user.Name : @user.Point</li>
+    }
+</ul>
+
 
 <div class="container w-75">
     @for (int i = 0; i < cards.Count; i += 4)
@@ -51,21 +69,21 @@
                 <div class="col-sm-12 col-md-6 col-lg-3 p-3">
                     <div class="card @(selectedCard == card ? "selected-card" : string.Empty) mx-auto" @onclick="() => SetSelectedPoint(card)">
                         <div class="card-body align-items-center d-flex justify-content-center">
-                            @if (card == "Must be divided")
+                            @if (card.GetEnumDescription() == "Must be divided")
                             {
                                 <span class="oi oi-layers card-text" aria-hidden="true"></span>
                             }
-                            else if (card == "I don't understand")
+                            else if (card.GetEnumDescription() == "I don't understand")
                             {
                                 <span class="oi oi-question-mark card-text" aria-hidden="true"></span>
                             }
-                            else if (card == "Break")
+                            else if (card.GetEnumDescription() == "Break")
                             {
                                 <span class="oi oi-clock card-text" aria-hidden="true"></span>
                             }
                             else
                             {
-                                <p class="card-text text-center user-select-none">@card</p>
+                                <p class="card-text text-center user-select-none">@card.GetEnumDescription()</p>
                             }
                         </div>
                     </div>
@@ -76,24 +94,33 @@
 
     <div class="row">
         <div class="col text-center">
-            <button type="button" class="btn btn-dark w-25" @onclick="() => Send(selectedCard)">Submit</button>
+            <button type="button" class="btn btn-dark w-25" @onclick="() => Send(user,selectedCard)">Submit</button>
         </div>
     </div>
 </div>
 
 @code {
+    [Parameter]
+    public User user { get; set; }
+    [Parameter]
+    public Room votingRoom { get; set; }
+    [Parameter]
+    public HubConnection votinghubConnection { get; set; }
 
-    private List<string> cards = new List<string> { "0", "1", "2", "3", "5", "8", "13", "21", "34", "Must be divided", "I don't understand", "Break" };
-    private string selectedCard = string.Empty;
+    private List<CardPoints> cards = Enum.GetValues(typeof(CardPoints))
+                                 .Cast<CardPoints>()
+                                 .ToList();
 
-    private void SetSelectedPoint(string card)
+    private ScrumPoker.Model.Enum.CardPoints selectedCard;
+
+    private void SetSelectedPoint(ScrumPoker.Model.Enum.CardPoints card)
     {
         selectedCard = card;
     }
 
-    private async Task Send(string selectedCard)
+    private async Task Send(User user, ScrumPoker.Model.Enum.CardPoints card)
     {
-        await JsRuntime.InvokeVoidAsync("alert", $"{selectedCard}");
+        await votinghubConnection.SendAsync("SendMessageRoomMateAsync", votingRoom.Name, user, selectedCard);
     }
 
 }
