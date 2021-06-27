@@ -1,4 +1,4 @@
-﻿using ScrumPoker.Model.Enum;
+﻿using ScrumPoker.Model.Enums;
 using System;
 
 namespace ScrumPoker.Model.Model

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace ScrumPoker.Model.Enum
+namespace ScrumPoker.Model.Enums
 {
     public enum RoleType
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ScrumPoker.Model.Enum
+namespace ScrumPoker.Model.Enums
 {
     public enum JiraTaskStatus
     {

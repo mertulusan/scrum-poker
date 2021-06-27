@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
-using ScrumPoker.Model.Enum;
+using ScrumPoker.Model.Enums;
 using ScrumPoker.Model.Model;
 using System;
 using System.Linq;
