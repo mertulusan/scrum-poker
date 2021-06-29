@@ -40,6 +40,13 @@ namespace ScrumPoker.UI.Hubs
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
 
+        public async Task GetGroupMessages(string roomName)
+        {
+            Room room = memoryCache.Get<Room>(roomName);
+            await Groups.AddToGroupAsync(Context.ConnectionId, room.Name);
+            await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
+        }
+
         //public async Task ReceiverMessageRoomMateAsync(string roomName)
         //{
         //    await Clients.Group(roomName).SendAsync("Receiver", $"{Context.ConnectionId} has joined the group {roomName}.");
