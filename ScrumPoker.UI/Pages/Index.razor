@@ -6,53 +6,50 @@
 @using ScrumPoker.Model
 @inject NavigationManager NavigationManager
 @implements IDisposable
-@using Microsoft.AspNetCore.WebUtilities;
 
-
-@*ToDo : Bu kontrol düzenlenmeli*@
-@if (!room.Users.Any())
-{
-    <h3>Room</h3>
-    <div class="justify-content-center">
-        <div class="col-6">
+<div class="container w-50">
+    <div class="card">
+        <div class="card-body">
             <div class="form-group row">
-                <label class="col-sm-2 col-form-label">Room Name</label>
-                <div class="input-group col-sm-10">
-                    <input ype="text" class="form-control" @bind="room.Name" placeholder="Room Name" t>
-                    <div class="input-group-append">
-                        <button @onclick="GenerateGuid" class="btn btn-success">Guid</button>
+                <label class="col-sm-3 col-form-label text-right font-weight-bold">Room Name:</label>
+                <div class="col-sm-9">
+                    <div class="input-group">
+                        <input type="text" class="form-control" @bind="room.Name" placeholder="Room Name" />
+                        <div class="input-group-append">
+                            <button @onclick="GeneratePrivateRoom" class="btn btn-success">Private Room</button>
+                        </div>
                     </div>
-                </div>
+                </div> 
             </div>
             <div class="form-group row">
-                <label class="col-sm-2 col-form-label">User Name</label>
-                <div class="col-sm-10">
+                <label class="col-sm-3 col-form-label text-right font-weight-bold">User Name:</label>
+                <div class="col-sm-9">
                     <input type="text" class="form-control" @bind="userName" placeholder="User Name">
                 </div>
             </div>
             <div class="form-group row">
-                <label class="col-sm-2">Role :</label>
-                @foreach (RoleType item in Enum.GetValues(typeof(RoleType)))
-                {
-                    <div class="col-sm-2">
-                        <input type="radio" name="Role" id="@item" value="@item" checked=@(item==RoleType.DEV) @onchange=@(()=>role=item) />
-                        <label for="@item">@item.GetEnumDescription()</label>
-                    </div>
-                }
+                <label class="col-sm-3 col-form-label text-right font-weight-bold">Role:</label>
+                <div class="col-sm-9">
+
+                    @foreach (RoleType item in Enum.GetValues(typeof(RoleType)))
+                    {
+                        <div class="row">
+                            <div class="col mt-2">
+                                <input type="radio" name="Role" id="@item" value="@item" checked=@(item==RoleType.DEV) @onchange=@(() => role = item) />
+                                <label for="@item">@item.GetEnumDescription()</label>
+                            </div>
+                        </div>
+                    }
+                </div>
             </div>
             <div class="form-group row">
-                <div class="col-sm-10">
-                    <button @onclick="Create" class="btn btn-primary" disabled="@(!IsConnected)">Create</button>
+                <div class="col-sm-12 d-flex justify-content-center">
+                    <button @onclick="JoinRoom" class="btn btn-primary" disabled="@(!IsConnected)">Join Room</button>
                 </div>
             </div>
         </div>
     </div>
-}
-else
-{
-    <Voting votingRoom=room votinghubConnection=hubConnection user=user />
-}
-
+</div>
 
 @code {
     private Room room = new Room
@@ -60,12 +57,13 @@ else
         Users = new List<User>(),
         VotedTaskList = new List<JiraTask>()
     };
+
     private HubConnection hubConnection;
     private string userName;
     User user;
-    RoleType role= RoleType.DEV;
+    RoleType role = RoleType.DEV;
 
-    private void GenerateGuid()
+    private void GeneratePrivateRoom()
     {
         room.Name = Guid.NewGuid().ToString();
     }
@@ -85,15 +83,17 @@ else
         await hubConnection.StartAsync();
     }
 
-    async Task Create()
+    async Task JoinRoom()
     {
         user = new User()
         {
             Id = Guid.NewGuid(),
             Name = userName,
-            Role = role
+            Role = role,
+            IsActive = true
         };
         await hubConnection.SendAsync("JoinRoomAsync", room, user);
+        NavigationManager.NavigateTo($"/lobby/{room.Name}/{user.Name}");
     }
 
     public bool IsConnected =>
