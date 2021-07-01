@@ -1,0 +1,18 @@
+﻿
+.clock-img {
+    background: url(../css/img/clock.png) no-repeat;
+    background-position: center;
+    background-size: cover;
+    display: inline-block;
+    height: 45px;
+    width: 45px;
+}
+
+
+.clock-span {
+    height: 45px;
+    width: 45px;
+    font-weight: 800;
+    float: right;
+    font-size: xx-large;
+}

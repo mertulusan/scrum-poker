@@ -1,0 +1,35 @@
+﻿
+@using System.Timers
+@implements IDisposable
+
+<button class="btn btn-lg @(interval <= 10? "btn-danger": "btn-success") float-right" @onclick="AddTime"><i class="clock-img"></i><span class="clock-span">  @( interval > 0 ? interval : "0")</span></button>
+
+@code {
+    [Parameter] public int interval { get; set; }
+    private bool isContinue = true;
+
+    private Timer timer = new(1000);
+
+    protected override void OnInitialized()
+    {
+        timer.Elapsed += (sender, eventArgs) => OnTimerCallback();
+        timer.Start();
+    }
+
+    private void OnTimerCallback()
+    {
+        _ = InvokeAsync(() =>
+        {
+            interval--;
+            StateHasChanged();
+        });
+    }
+
+    private void AddTime()
+    {
+        if (interval <= 10)
+            interval += 20;
+    }
+
+    public void Dispose() => timer.Dispose();
+}
