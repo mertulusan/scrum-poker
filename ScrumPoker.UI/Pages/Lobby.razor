@@ -1,7 +1,9 @@
 ﻿@page "/lobby/{roomName}/{userName}"
 @using Microsoft.AspNetCore.SignalR.Client
 @using ScrumPoker.Model.Model
+@using ScrumPoker.UI.Components
 @inject NavigationManager NavigationManager
+
 
 <style type="text/css">
     .user-list {
@@ -27,6 +29,9 @@
         margin: 15px;
     }
 </style>
+
+@* 10dan düşük olduğunda +20 dakika için huba gönderim yapılmalı. senkronize değil şu an *@
+<TimerComponent interval="@interval" />
 
 <div class="container">
     <div class="row mb-5">
@@ -66,14 +71,12 @@
 
 @code {
 
-    [Parameter]
-    public string RoomName { get; set; }
+    [Parameter] public string RoomName { get; set; }
+    [Parameter] public string Username { get; set; }
 
-    [Parameter]
-    public string Username { get; set; }
+    private int interval { get; set; }
 
     private HubConnection hubConnection;
-
     public Room room { get; set; }
 
     protected override async Task OnInitializedAsync()
@@ -90,5 +93,8 @@
 
         await hubConnection.StartAsync();
         await hubConnection.SendAsync("GetGroupMessages", RoomName);
+
+        double timer = (room == null) ? DateTime.Now.AddMinutes(20).Subtract(DateTime.Now).TotalMinutes : room.EndDate.Subtract(DateTime.Now).TotalMinutes;
+        interval = Convert.ToInt32(timer);
     }
 }
