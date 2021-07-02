@@ -25,7 +25,7 @@ namespace ScrumPoker.UI.Hubs
                 model.Id = System.Guid.NewGuid();
                 model.EndDate = System.DateTime.Now.AddMinutes(20);
 
-                room = memoryCache.Set<Room>(model.Name, model);
+                room = memoryCache.Set<Room>(model.Name, model, DateTime.Now.AddMinutes(20));
             }
             room.Users.Add(user);
             await Groups.AddToGroupAsync(Context.ConnectionId, room.Name);
@@ -60,6 +60,14 @@ namespace ScrumPoker.UI.Hubs
         public async Task SendMessage(string user, string message)
         {
             await Clients.All.SendAsync("ReceiveMessage", user, message);
+        }
+        
+        public async Task AddTimeRoom(string roomName)
+        {
+            Room room = memoryCache.Get<Room>(roomName);
+            room.EndDate = room.EndDate.AddMinutes(20);
+            memoryCache.Set<Room>(roomName, room, DateTime.Now.AddMinutes(20));
+            await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
     }
 }

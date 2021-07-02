@@ -1,12 +1,21 @@
 ﻿
 @using System.Timers
+@using Microsoft.AspNetCore.SignalR.Client
+@using ScrumPoker.Model.Model
+@using ScrumPoker.Model.Enums
 @implements IDisposable
 
-<button class="btn btn-lg @(interval <= 10? "btn-danger": "btn-success") float-right" @onclick="AddTime"><i class="clock-img"></i><span class="clock-span">  @( interval > 0 ? interval : "0")</span></button>
+<button class="btn btn-lg @(remainingMinute <= 10? "btn-danger": "btn-success") float-right" @onclick="AddTime"><i class="clock-img"></i><span class="clock-span">  @( remainingMinute > 0 ? remainingMinute : "0")</span></button>
 
 @code {
-    [Parameter] public int interval { get; set; }
-    private bool isContinue = true;
+    [Parameter]
+    public Room room { get; set; }
+    [Parameter]
+    public HubConnection hubConnection { get; set; }
+    [Parameter]
+    public string username { get; set; }
+
+    private int remainingMinute { get; set; }
 
     private Timer timer = new(1000);
 
@@ -14,21 +23,26 @@
     {
         timer.Elapsed += (sender, eventArgs) => OnTimerCallback();
         timer.Start();
+
+        remainingMinute = Convert.ToInt32(DateTime.Now.AddMinutes(20).Subtract(DateTime.Now).TotalMinutes);
     }
 
     private void OnTimerCallback()
     {
         _ = InvokeAsync(() =>
         {
-            interval--;
+            var leftTime = room.EndDate.Subtract(DateTime.Now).TotalMinutes;
+            remainingMinute = Convert.ToInt32(leftTime);
             StateHasChanged();
         });
     }
 
     private void AddTime()
     {
-        if (interval <= 10)
-            interval += 20;
+        var authRoles = new RoleType[] { RoleType.SM, RoleType.PO };
+        var role = room.Users.FirstOrDefault(p => p.Name == username).Role;
+        if (remainingMinute <= 10 && authRoles.Any(p => p == role))
+            hubConnection.SendAsync("AddTimeRoom", room.Name);
     }
 
     public void Dispose() => timer.Dispose();
