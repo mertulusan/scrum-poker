@@ -1,6 +1,7 @@
 ﻿@page "/lobby/{roomName}/{userName}"
 @using Microsoft.AspNetCore.SignalR.Client
 @using ScrumPoker.Model.Model
+@using ScrumPoker.Model.Enums
 @using ScrumPoker.UI.Components
 @inject NavigationManager NavigationManager
 
@@ -33,41 +34,59 @@
 @* 10dan düşük olduğunda +20 dakika için huba gönderim yapılmalı. senkronize değil şu an *@
 <TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
 
-<div class="container">
-    <div class="row mb-5">
-        <div class="col">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h3 class="card-title">Room: @RoomName</h3>
 
-                    <div class="row">
-                        <div class="col">
-                            <button type="button" class="btn btn-success btn-lg">Start Voting</button>
+
+@if (!isVoting)
+{
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3 class="card-title">Room: @RoomName</h3>
+
+                        <div class="row">
+                            <div class="col">
+                                <button type="button" class="btn btn-success btn-lg" @onclick="StartVoting">Start Voting</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    @if (room?.Users?.Count > 0)
-    {
-        @for (int i = 0; i < room.Users.Count; i += 5)
+        @if (developers?.Count > 0)
         {
-            <div class="row d-flex justify-content-center">
-                @foreach (var user in room.Users.Skip(i).Take(5))
-                {
-                    <div class="user-list">
-                        <div class="user-card border">
-                            <h5 class="card-title">@user.Name</h5>
-                            <span class="badge rounded-pill @(user.IsActive ? "bg-success" : "bg-danger") text-white">@(user.IsActive ? "online" : "offline")</span>
+            @for (int i = 0; i < developers.Count; i += 5)
+            {
+                <div class="row d-flex justify-content-center">
+                    @foreach (var developer in developers.Skip(i).Take(5))
+                    {
+                        <div class="user-list">
+                            <div class="user-card border">
+                                <h5 class="card-title">@developer.Name</h5>
+                                <span class="badge rounded-pill @(developer.IsActive ? "bg-success" : "bg-danger") text-white">@(developer.IsActive ? "online" : "offline")</span>
+                            </div>
                         </div>
-                    </div>
-                }
-            </div>
+                    }
+                </div>
+            }
         }
-    }
-</div>
+    </div>
+}
+else if (isVoting && developers?.FirstOrDefault(x => x.Name == Username).Point > 0)
+{
+    //Oylama devam ediyor fakat currentUser oyunu kullanmış ise bu kısım gösterilecek. Kendi oylamasını tamamladığı fakat diğer kişileri beklediği ekran.
+
+    //case'de > 0'dan kullanıldı(test amaçlı) fakat User objesinde int olarak tutulmaması gerekiyor. Çünkü default değeri 0 ve oylamada 0'da seçilebilen bir kart.
+    //Default değerin null veya 0 dan farklı bir değer olması gerekiyor.
+
+    //User model'de Point alanı CardPoint enum tipinde tutulabilir, enum değeri null ise oyunu kullanmadığı kolay bir şekilde anlaşılabilir.
+}
+else
+{
+    <Voting votinghubConnection=@hubConnection votingRoom=@room user=@developers?.FirstOrDefault(x => x.Name == Username) />
+}
 
 @code {
 
@@ -75,7 +94,9 @@
     [Parameter] public string Username { get; set; }
 
     private HubConnection hubConnection;
-    public Room room;
+    private Room room;
+    private List<User> developers;
+    private bool isVoting => room?.VotingTask?.Status == JiraTaskStatus.Started || room?.VotingTask?.Status == JiraTaskStatus.Voting;
 
     protected override async Task OnInitializedAsync()
     {
@@ -86,10 +107,23 @@
         hubConnection.On<Room>("ReceiveMessage", (data) =>
         {
             room = data;
+            developers = data.Users.Where(x => x.Role == RoleType.DEV).ToList();
             StateHasChanged();
         });
 
         await hubConnection.StartAsync();
         await hubConnection.SendAsync("GetGroupMessages", RoomName);
+    }
+
+    protected async Task StartVoting()
+    {
+        var task = new JiraTask
+        {
+            Id = 0,
+            Name = "Task 1",
+            Status = JiraTaskStatus.Started
+        };
+
+        await hubConnection.SendAsync("StartVoting", RoomName, task);
     }
 }
