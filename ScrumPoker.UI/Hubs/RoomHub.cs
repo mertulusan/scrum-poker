@@ -27,6 +27,7 @@ namespace ScrumPoker.UI.Hubs
 
                 room = memoryCache.Set<Room>(model.Name, model, DateTime.Now.AddMinutes(20));
             }
+            user.ConnectionId = Context.ConnectionId;
             room.Users.Add(user);
             await Groups.AddToGroupAsync(Context.ConnectionId, room.Name);
             await Clients.Group(room.Name).SendAsync("ReceiveMessage", room);
@@ -67,6 +68,15 @@ namespace ScrumPoker.UI.Hubs
             Room room = memoryCache.Get<Room>(roomName);
             room.EndDate = room.EndDate.AddMinutes(20);
             memoryCache.Set<Room>(roomName, room, DateTime.Now.AddMinutes(20));
+            await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
+        }
+        
+        public async Task KickUser(string roomName, string kickingUserName)
+        {
+            Room room = memoryCache.Get<Room>(roomName);
+            var kickingUser = room.Users.FirstOrDefault(p => p.Name.Equals(kickingUserName));
+            room.Users.Remove(kickingUser);
+            await Groups.RemoveFromGroupAsync(kickingUser.ConnectionId,roomName);
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
     }

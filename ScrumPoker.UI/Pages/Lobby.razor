@@ -1,6 +1,7 @@
 ﻿@page "/lobby/{roomName}/{userName}"
 @using Microsoft.AspNetCore.SignalR.Client
 @using ScrumPoker.Model.Model
+@using ScrumPoker.Model.Enums
 @using ScrumPoker.UI.Components
 @inject NavigationManager NavigationManager
 
@@ -59,6 +60,14 @@
                 {
                     <div class="user-list">
                         <div class="user-card border">
+
+                            @* ToDo: İşlem yapan kullanıcının yetkisi varmı kontrolü eklenmeli *@
+                            @if (new[] { RoleType.SM, RoleType.PO }.Contains(room?.Users?.FirstOrDefault(p => p.Name.Equals(Username))?.Role ?? RoleType.DEV))
+                            {
+                                <button @onclick="@(p=>KickUser(user.Name))" style="margin-left: auto;margin-bottom: auto; margin-top: 0; margin-right: 0; padding:15px 15px 15px 15px;">x</button>
+                            }
+
+
                             <h5 class="card-title">@user.Name</h5>
                             <span class="badge rounded-pill @(user.IsActive ? "bg-success" : "bg-danger") text-white">@(user.IsActive ? "online" : "offline")</span>
                         </div>
@@ -68,7 +77,6 @@
         }
     }
 </div>
-
 @code {
 
     [Parameter] public string RoomName { get; set; }
@@ -76,6 +84,18 @@
 
     private HubConnection hubConnection;
     public Room room;
+    public Room _room
+    {
+        get
+        {
+            return room;
+        }
+        set { 
+            room = value; 
+            if (room.Users.FirstOrDefault(p => p.Name.Equals(Username)) == null)
+                NavigationManager.NavigateTo($"/");
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -85,11 +105,16 @@
 
         hubConnection.On<Room>("ReceiveMessage", (data) =>
         {
-            room = data;
+            _room = data;
             StateHasChanged();
         });
 
         await hubConnection.StartAsync();
         await hubConnection.SendAsync("GetGroupMessages", RoomName);
+    }
+
+    void KickUser(string kickUserName)
+    {
+        hubConnection.SendAsync("KickUser", room.Name, kickUserName);
     }
 }
