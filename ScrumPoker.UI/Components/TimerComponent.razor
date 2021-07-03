@@ -1,5 +1,4 @@
-﻿
-@using System.Timers
+﻿@using System.Timers
 @using Microsoft.AspNetCore.SignalR.Client
 @using ScrumPoker.Model.Model
 @using ScrumPoker.Model.Enums
@@ -8,12 +7,9 @@
 <button class="btn btn-lg @(remainingMinute <= 10? "btn-danger": "btn-success") float-right" @onclick="AddTime"><i class="clock-img"></i><span class="clock-span">  @( remainingMinute > 0 ? remainingMinute : "0")</span></button>
 
 @code {
-    [Parameter]
-    public Room room { get; set; }
-    [Parameter]
-    public HubConnection hubConnection { get; set; }
-    [Parameter]
-    public string username { get; set; }
+    [Parameter] public Room room { get; set; }
+    [Parameter] public HubConnection hubConnection { get; set; }
+    [Parameter] public RoleType userRole { get; set; }
 
     private int remainingMinute { get; set; }
 
@@ -39,9 +35,7 @@
 
     private void AddTime()
     {
-        var authRoles = new RoleType[] { RoleType.SM, RoleType.PO };
-        var role = room.Users.FirstOrDefault(p => p.Name == username).Role;
-        if (remainingMinute <= 10 && authRoles.Any(p => p == role))
+        if (remainingMinute <= 10 && (userRole == RoleType.SM || userRole == RoleType.PO))
             hubConnection.SendAsync("AddTimeRoom", room.Name);
     }
 
