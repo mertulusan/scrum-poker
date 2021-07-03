@@ -1,37 +1,12 @@
-﻿@page "/lobby/{roomName}/{userName}"
+﻿@page "/lobby/{roomName}"
 @using Microsoft.AspNetCore.SignalR.Client
 @using ScrumPoker.Model.Model
+@using ScrumPoker.Model.Enums
 @using ScrumPoker.UI.Components
+@inject ISessionStorageService sessionStorage
 @inject NavigationManager NavigationManager
 
-
-<style type="text/css">
-    .user-list {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .user-card {
-        border-radius: 5px;
-        height: 140px;
-        max-width: 160px;
-        width: 45vw;
-        font-size: 18px;
-        font-weight: 500;
-        letter-spacing: 0;
-        text-align: center;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        position: relative;
-        margin: 15px;
-    }
-</style>
-
-@* 10dan düşük olduğunda +20 dakika için huba gönderim yapılmalı. senkronize değil şu an *@
-<TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
+<TimerComponent room="@room" hubConnection="@hubConnection" userRole="@userRole" />
 
 <div class="container">
     <div class="row mb-5">
@@ -50,7 +25,7 @@
         </div>
     </div>
 
-    @if (room?.Users?.Count > 0)
+    @if (room != null && room.Users.Count > 0)
     {
         @for (int i = 0; i < room.Users.Count; i += 5)
         {
@@ -72,24 +47,46 @@
 @code {
 
     [Parameter] public string RoomName { get; set; }
-    [Parameter] public string Username { get; set; }
 
     private HubConnection hubConnection;
-    public Room room;
+    private Room room;
+    private RoleType userRole;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            userRole = sessionStorage.GetItemAsync<User>("user").Result.Role;
+            StateHasChanged();
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        hubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri("/roomhub"))
-            .Build();
-
-        hubConnection.On<Room>("ReceiveMessage", (data) =>
+        try
         {
-            room = data;
-            StateHasChanged();
-        });
+            hubConnection = new HubConnectionBuilder()
+                .WithUrl(NavigationManager.ToAbsoluteUri("/roomhub"))
+                .Build();
 
-        await hubConnection.StartAsync();
-        await hubConnection.SendAsync("GetGroupMessages", RoomName);
+            hubConnection.On<Room>("SendMessage", (data) =>
+            {
+                room = data;
+                StateHasChanged();
+            });
+        }
+        catch (Exception)
+        {
+            NavigationManager.NavigateTo($"/error");
+        }
+
+    }
+
+    public bool IsConnected =>
+        hubConnection.State == HubConnectionState.Connected;
+
+    public void Dispose()
+    {
+        _ = hubConnection.DisposeAsync();
     }
 }
