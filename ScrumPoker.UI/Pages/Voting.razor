@@ -7,8 +7,6 @@
 @using ScrumPoker.Model
 @using System
 
-<h3>Voting</h3>
-
 <style type="text/css">
     .card {
         height: 225px;
@@ -46,19 +44,7 @@
     }
 </style>
 
-
-
-<h1>Current User = @user.Name (@user.Role.GetEnumDescription())</h1>
-
-<h2 class="h5">Selected card: @selectedCard.GetEnumDescription()</h2>
-
-<ul>
-    @foreach (var user in votingRoom.Users)
-    {
-    <li>@user.Name (@user.Role.GetEnumDescription()): @user.Point</li>
-    }
-</ul>
-
+<h1>Current User: @user.Name (@user.Role.GetEnumDescription())</h1>
 
 <div class="container w-75">
     @for (int i = 0; i < cards.Count; i += 4)
