@@ -114,6 +114,7 @@ else
             StateHasChanged();
         });
 
+        await hubConnection.StartAsync();
         await roomService.GetGroupMessages(RoomName);
     }
 

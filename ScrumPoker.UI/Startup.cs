@@ -2,6 +2,7 @@ using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,6 +27,7 @@ namespace ScrumPoker.UI
             services.AddServerSideBlazor();
             services.AddMemoryCache();
             services.AddSignalR();
+            services.AddScoped<Hub<IRoomHub>, RoomHub>();
             services.AddScoped<IRoomService, RoomService>();           
             services.AddRazorPages();
             services.AddResponseCompression(opts =>
