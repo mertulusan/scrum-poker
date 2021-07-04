@@ -12,9 +12,9 @@ namespace ScrumPoker.UI.Services
     public class RoomService : IRoomService
     {
         readonly IMemoryCache memoryCache;
-        readonly private IHubContext<RoomHub, IRoomHub> hubContext;
+        readonly private IHubContext<RoomHub> hubContext;
 
-        public RoomService(IMemoryCache memoryCache, IHubContext<RoomHub, IRoomHub> hubContext)
+        public RoomService(IMemoryCache memoryCache, IHubContext<RoomHub> hubContext)
         {
             this.memoryCache = memoryCache;
             this.hubContext = hubContext;
@@ -34,10 +34,9 @@ namespace ScrumPoker.UI.Services
                     room.VotedTaskList = new List<JiraTask>();
                 }
                 room.Users.Add(user);
-                memoryCache.Set<Room>(model.Name, model, DateTime.Now.AddMinutes(20));
+                memoryCache.Set<Room>(room.Name, room, DateTime.Now.AddMinutes(20));
 
-                await hubContext.Clients.Group(room.Name).JoinRoomAsync(room.Name);
-                await hubContext.Clients.Group(room.Name).ReceiveMessage(room);
+                await this.hubContext.Clients.Group(room.Name).SendAsync("JoinRoomAsync", room);
 
                 return true;
             }
@@ -47,38 +46,35 @@ namespace ScrumPoker.UI.Services
             }
         }
 
-        public async Task<List<User>> GetUsers(string roomName)
-        {
-            Room room = memoryCache.Get<Room>(roomName);
-            if (room == null)
-                return null;
+        //public async Task<List<User>> GetUsers(string roomName)
+        //{
+        //    Room room = memoryCache.Get<Room>(roomName);
+        //    if (room == null)
+        //        return null;
 
-            await hubContext.Clients.Group(room.Name).ReceiveMessage(room);
-
-            return room.Users;
-        }
+        //    return room.Users;
+        //}
 
         public async Task GetGroupMessages(string roomName)
         {
             Room room = memoryCache.Get<Room>(roomName);
-            //await hubContext.Groups.AddToGroupAsync(, room.Name);
-            await hubContext.Clients.Group(roomName).ReceiveMessage(room);
+            await hubContext.Clients.Group(room.Name).SendAsync("JoinRoomAsync", room);
         }
 
         public async Task StartVoting(string roomName, JiraTask task)
         {
             Room room = memoryCache.Get<Room>(roomName);
             room.VotingTask = task;
-            await hubContext.Clients.Group(roomName).ReceiveMessage(room);
+            await hubContext.Clients.Group(room.Name).SendAsync("SendMessageAsync", room);
         }
 
         public async Task AddTimeRoom(string roomName)
         {
             Room room = memoryCache.Get<Room>(roomName);
             room.EndDate = room.EndDate.AddMinutes(20);
-            memoryCache.Set<Room>(roomName, room, DateTime.Now.AddMinutes(20));
+            memoryCache.Set<Room>(room.Name, room, DateTime.Now.AddMinutes(20));
 
-            await hubContext.Clients.Group(room.Name).ReceiveMessage(room);
+            await hubContext.Clients.Group(room.Name).SendAsync("SendMessageAsync", room);
         }
 
     }

@@ -1,34 +1,38 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using ScrumPoker.Model.Enums;
 using ScrumPoker.Model.Model;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ScrumPoker.UI.Hubs
 {
-    public class RoomHub : Hub<IRoomHub>
+    public class RoomHub : Hub
     {
-        public async Task JoinRoomAsync(string roomName)
+        public async Task JoinRoomAsync(Room room)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
+            await Groups.AddToGroupAsync(Context.ConnectionId, room.Name);
+            await Clients.Group(room.Name).SendAsync("ReceiveMessage", room);
         }
 
-        public async Task SendMessage(Room room)
+        public async Task SendMessageAsync(Room room)
         {
-            await Clients.Group(room.Name).ReceiveMessage(room);
+            await Clients.Group(room.Name).SendAsync("ReceiveMessage", room);
         }
 
-
-        //public async Task SendMessageRoomMateAsync(string roomName, User user, CardPoints cardPoint)
+        //public async Task GetGroupMessages(Room room)
         //{
-        //    Room room = memoryCache.Get<Room>(roomName);
-        //    var roomUser = room.Users.FirstOrDefault(p => p.Id == user.Id);
-        //    roomUser.Point = (int)cardPoint;
-        //    //  await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
+        //    await Groups.AddToGroupAsync(Context.ConnectionId, room.Name);
+        //    await Clients.Group(room.Name).SendAsync("ReceiveMessage", room);
         //}
 
-
-        //public async Task SendMessage(string user, string message)
+        //public async Task LeaveRoomAsync(string groupName)
         //{
-        //    //  await Clients.All.SendAsync("ReceiveMessage", user, message);
+        //    await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+        //}
+
+        //public async Task AddTimeRoom(Room room)
+        //{
+        //    await Clients.Group(room.Name).SendAsync("ReceiveMessage", room);
         //}
 
     }

@@ -27,8 +27,7 @@ namespace ScrumPoker.UI
             services.AddServerSideBlazor();
             services.AddMemoryCache();
             services.AddSignalR();
-            services.AddScoped<Hub<IRoomHub>, RoomHub>();
-            services.AddScoped<IRoomService, RoomService>();           
+            services.AddScoped<IRoomService, RoomService>();
             services.AddRazorPages();
             services.AddResponseCompression(opts =>
             {
