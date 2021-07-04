@@ -74,7 +74,7 @@
         {
             navigationManager.NavigateTo($"/error");
         }
-        navigationManager.NavigateTo($"/lobby/{room.Name}");
+        navigationManager.NavigateTo($"/lobby/{room.Name}/{newUser.Name}");
     }
 
     private void GeneratePrivateRoom() =>

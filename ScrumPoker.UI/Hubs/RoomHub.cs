@@ -26,15 +26,6 @@ namespace ScrumPoker.UI.Hubs
         //}
 
 
-
-        public async Task StartVoting(string roomName, JiraTask task)
-        {
-            Room room = memoryCache.Get<Room>(roomName);
-            room.VotingTask = task;
-            await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
-        }
-
-
         //public async Task SendMessage(string user, string message)
         //{
         //    //  await Clients.All.SendAsync("ReceiveMessage", user, message);

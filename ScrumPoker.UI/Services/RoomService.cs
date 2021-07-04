@@ -12,7 +12,8 @@ namespace ScrumPoker.UI.Services
     public class RoomService : IRoomService
     {
         readonly IMemoryCache memoryCache;
-        private IHubContext<RoomHub, IRoomHub> hubContext;
+        readonly private IHubContext<RoomHub, IRoomHub> hubContext;
+
         public RoomService(IMemoryCache memoryCache, IHubContext<RoomHub, IRoomHub> hubContext)
         {
             this.memoryCache = memoryCache;
@@ -57,6 +58,19 @@ namespace ScrumPoker.UI.Services
             return room.Users;
         }
 
+        public async Task GetGroupMessages(string roomName)
+        {
+            Room room = memoryCache.Get<Room>(roomName);
+            //await hubContext.Groups.AddToGroupAsync(, room.Name);
+            await hubContext.Clients.Group(roomName).ReceiveMessage(room);
+        }
+
+        public async Task StartVoting(string roomName, JiraTask task)
+        {
+            Room room = memoryCache.Get<Room>(roomName);
+            room.VotingTask = task;
+            await hubContext.Clients.Group(roomName).ReceiveMessage(room);
+        }
 
         public async Task AddTimeRoom(string roomName)
         {

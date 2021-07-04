@@ -9,5 +9,9 @@ namespace ScrumPoker.UI.Services
         Task<bool> JoinRoom(Room model, User user);
 
         Task<List<User>> GetUsers(string roomName);
+
+        Task GetGroupMessages(string roomName);
+
+        Task StartVoting(string roomName, JiraTask task);
     }
 }

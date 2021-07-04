@@ -1,12 +1,12 @@
-﻿@page "/lobby/{roomName}"
+﻿@page "/lobby/{roomName}/{userName}"
 @using Microsoft.AspNetCore.SignalR.Client
 @using ScrumPoker.Model.Model
 @using ScrumPoker.Model.Enums
 @using ScrumPoker.UI.Components
 @inject ISessionStorageService sessionStorage
 @inject NavigationManager NavigationManager
+@inject Services.IRoomService roomService
 
-<TimerComponent room="@room" hubConnection="@hubConnection" userRole="@userRole" />
 
 <style type="text/css">
     .user-list {
@@ -34,7 +34,7 @@
 </style>
 
 @* 10dan düşük olduğunda +20 dakika için huba gönderim yapılmalı. senkronize değil şu an *@
-<TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
+<TimerComponent room="@room" hubConnection="@hubConnection" userRole="@role" />
 
 
 
@@ -93,10 +93,12 @@ else
 @code {
 
     [Parameter] public string RoomName { get; set; }
+    [Parameter] public string Username { get; set; }
 
     private HubConnection hubConnection;
     private Room room;
     private List<User> developers;
+    private RoleType role;
     private bool isVoting => room?.VotingTask?.Status == JiraTaskStatus.Started || room?.VotingTask?.Status == JiraTaskStatus.Voting;
 
     protected override async Task OnInitializedAsync()
@@ -112,9 +114,16 @@ else
             StateHasChanged();
         });
 
-    public void Dispose()
+        await roomService.GetGroupMessages(RoomName);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        _ = hubConnection.DisposeAsync();
+        if (firstRender)
+        {
+            role = sessionStorage.GetItemAsync<User>("user").Result.Role;
+            StateHasChanged();
+        }
     }
 
     protected async Task StartVoting()
@@ -127,6 +136,6 @@ else
             Status = JiraTaskStatus.Started
         };
 
-        await hubConnection.SendAsync("StartVoting", RoomName, task);
+        await roomService.StartVoting(RoomName, task);
     }
 }
