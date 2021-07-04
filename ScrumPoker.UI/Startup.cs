@@ -1,3 +1,4 @@
+using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -5,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ScrumPoker.UI.Hubs;
+using ScrumPoker.UI.Services;
 using System.Linq;
 
 namespace ScrumPoker.UI
@@ -18,15 +20,14 @@ namespace ScrumPoker.UI
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddRazorPages();
+            services.AddBlazoredSessionStorage();
             services.AddServerSideBlazor();
-            services.AddSignalR();
             services.AddMemoryCache();
-
+            services.AddSignalR();
+            services.AddScoped<IRoomService, RoomService>();           
+            services.AddRazorPages();
             services.AddResponseCompression(opts =>
             {
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
@@ -34,7 +35,6 @@ namespace ScrumPoker.UI
             });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseResponseCompression();
@@ -59,5 +59,6 @@ namespace ScrumPoker.UI
                 endpoints.MapFallbackToPage("/_Host");
             });
         }
+
     }
 }

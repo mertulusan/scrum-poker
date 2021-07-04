@@ -1,51 +1,31 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Caching.Memory;
-using ScrumPoker.Model.Enums;
 using ScrumPoker.Model.Model;
-using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ScrumPoker.UI.Hubs
 {
-    public class RoomHub : Hub
+    public class RoomHub : Hub<IRoomHub>
     {
-        readonly IMemoryCache memoryCache;
-
-        public RoomHub(IMemoryCache memoryCache)
+        public async Task JoinRoomAsync(string roomName)
         {
-            this.memoryCache = memoryCache;
+            await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
         }
 
-        public async Task JoinRoomAsync(Room model, User user)
+        public async Task SendMessage(Room room)
         {
-            Room room = memoryCache.Get<Room>(model.Name);
-            if (room == null)
-            {
-                model.Id = System.Guid.NewGuid();
-                model.EndDate = System.DateTime.Now.AddMinutes(20);
-
-                room = memoryCache.Set<Room>(model.Name, model, DateTime.Now.AddMinutes(20));
-            }
-            room.Users.Add(user);
-            await Groups.AddToGroupAsync(Context.ConnectionId, room.Name);
-            await Clients.Group(room.Name).SendAsync("ReceiveMessage", room);
+            await Clients.Group(room.Name).ReceiveMessage(room);
         }
 
-        public async Task SendMessageRoomMateAsync(string roomName, User user, CardPoints cardPoint)
-        {
-            Room room = memoryCache.Get<Room>(roomName);
-            var roomUser = room.Users.FirstOrDefault(p => p.Id == user.Id);
-            roomUser.Point = (int)cardPoint;
-            await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
-        }
 
-        public async Task GetGroupMessages(string roomName)
-        {
-            Room room = memoryCache.Get<Room>(roomName);
-            await Groups.AddToGroupAsync(Context.ConnectionId, room.Name);
-            await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
-        }
+        //public async Task SendMessageRoomMateAsync(string roomName, User user, CardPoints cardPoint)
+        //{
+        //    Room room = memoryCache.Get<Room>(roomName);
+        //    var roomUser = room.Users.FirstOrDefault(p => p.Id == user.Id);
+        //    roomUser.Point = (int)cardPoint;
+        //    //  await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
+        //}
+
+
 
         public async Task StartVoting(string roomName, JiraTask task)
         {
@@ -54,27 +34,11 @@ namespace ScrumPoker.UI.Hubs
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
 
-        //public async Task ReceiverMessageRoomMateAsync(string roomName)
+
+        //public async Task SendMessage(string user, string message)
         //{
-        //    await Clients.Group(roomName).SendAsync("Receiver", $"{Context.ConnectionId} has joined the group {roomName}.");
+        //    //  await Clients.All.SendAsync("ReceiveMessage", user, message);
         //}
 
-        public async Task LeaveRoomAsync(string groupName)
-        {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
-        }
-
-        public async Task SendMessage(string user, string message)
-        {
-            await Clients.All.SendAsync("ReceiveMessage", user, message);
-        }
-        
-        public async Task AddTimeRoom(string roomName)
-        {
-            Room room = memoryCache.Get<Room>(roomName);
-            room.EndDate = room.EndDate.AddMinutes(20);
-            memoryCache.Set<Room>(roomName, room, DateTime.Now.AddMinutes(20));
-            await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
-        }
     }
 }

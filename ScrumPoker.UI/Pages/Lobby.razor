@@ -1,10 +1,12 @@
-﻿@page "/lobby/{roomName}/{userName}"
+﻿@page "/lobby/{roomName}"
 @using Microsoft.AspNetCore.SignalR.Client
 @using ScrumPoker.Model.Model
 @using ScrumPoker.Model.Enums
 @using ScrumPoker.UI.Components
+@inject ISessionStorageService sessionStorage
 @inject NavigationManager NavigationManager
 
+<TimerComponent room="@room" hubConnection="@hubConnection" userRole="@userRole" />
 
 <style type="text/css">
     .user-list {
@@ -91,7 +93,6 @@ else
 @code {
 
     [Parameter] public string RoomName { get; set; }
-    [Parameter] public string Username { get; set; }
 
     private HubConnection hubConnection;
     private Room room;
@@ -111,8 +112,9 @@ else
             StateHasChanged();
         });
 
-        await hubConnection.StartAsync();
-        await hubConnection.SendAsync("GetGroupMessages", RoomName);
+    public void Dispose()
+    {
+        _ = hubConnection.DisposeAsync();
     }
 
     protected async Task StartVoting()
