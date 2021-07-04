@@ -1,7 +1,9 @@
 ﻿@inherits LayoutComponentBase
+@inject ISessionStorageService sessionStorage
+@inject NavigationManager navigationManager
 
-<div class="page">   
-    <div class="main">       
+<div class="page">
+    <div class="main">
         <div class="row justify-content-center" style="margin-top:100px">
             <div class="col-10">
                 @Body
@@ -9,3 +11,22 @@
         </div>
     </div>
 </div>
+
+@code {
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetNameFromSessionStorage();
+        }
+    }
+
+    async Task GetNameFromSessionStorage()
+    {
+        string username = await sessionStorage.GetItemAsync<string>("userName");
+
+        if (string.IsNullOrEmpty(username))
+            navigationManager.NavigateTo("/login");
+    }
+}

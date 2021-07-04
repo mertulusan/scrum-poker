@@ -1,11 +1,10 @@
-﻿@page "/"
-
-@using Microsoft.AspNetCore.SignalR.Client
+﻿@page "/login"
 @using ScrumPoker.Model.Model
 @using ScrumPoker.Model.Enums
 @using ScrumPoker.Model
-@inject NavigationManager NavigationManager
-@implements IDisposable
+@inject Services.IRoomService roomService
+@inject ISessionStorageService sessionStorage
+@inject NavigationManager navigationManager
 
 <div class="container w-50">
     <div class="card">
@@ -19,12 +18,12 @@
                             <button @onclick="GeneratePrivateRoom" class="btn btn-success">Private Room</button>
                         </div>
                     </div>
-                </div> 
+                </div>
             </div>
             <div class="form-group row">
                 <label class="col-sm-3 col-form-label text-right font-weight-bold">User Name:</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" @bind="userName" placeholder="User Name">
+                    <input type="text" class="form-control" @bind="newUser.Name" placeholder="User Name">
                 </div>
             </div>
             <div class="form-group row">
@@ -35,7 +34,7 @@
                     {
                         <div class="row">
                             <div class="col mt-2">
-                                <input type="radio" name="Role" id="@item" value="@item" checked=@(item==RoleType.DEV) @onchange=@(() => role = item) />
+                                <input type="radio" name="Role" id="@item" value="@item" checked=@(item==RoleType.DEV) @onchange=@(() => newUser.Role = item) />
                                 <label for="@item">@item.GetEnumDescription()</label>
                             </div>
                         </div>
@@ -44,7 +43,7 @@
             </div>
             <div class="form-group row">
                 <div class="col-sm-12 d-flex justify-content-center">
-                    <button @onclick="JoinRoom" class="btn btn-primary" disabled="@(!IsConnected)">Join Room</button>
+                    <button @onclick="JoinRoom" class="btn btn-primary">Join Room</button>
                 </div>
             </div>
         </div>
@@ -52,56 +51,32 @@
 </div>
 
 @code {
-    private Room room = new Room
+
+    private Room room = new Room();
+    private User newUser = new User()
     {
-        Users = new List<User>(),
-        VotedTaskList = new List<JiraTask>()
+        Id = Guid.NewGuid(),
+        Role = RoleType.DEV,
+        IsActive = true
     };
 
-    private HubConnection hubConnection;
-    private string userName;
-    User user;
-    RoleType role = RoleType.DEV;
-
-    private void GeneratePrivateRoom()
+    private void JoinRoom()
     {
+        try
+        {
+            if (roomService.JoinRoom(room, newUser) == Task.CompletedTask)
+            {
+                sessionStorage.SetItemAsync<Room>("room", room);
+                sessionStorage.SetItemAsync<User>("user", newUser);
+            }
+        }
+        catch (Exception)
+        {
+            navigationManager.NavigateTo($"/error");
+        }
+        navigationManager.NavigateTo($"/lobby/{room.Name}");
+    }
+
+    private void GeneratePrivateRoom() =>
         room.Name = Guid.NewGuid().ToString();
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        hubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri("/roomhub"))
-            .Build();
-
-        hubConnection.On<Room>("ReceiveMessage", (data) =>
-        {
-            room = data;
-            StateHasChanged();
-        });
-
-        await hubConnection.StartAsync();
-    }
-
-    async Task JoinRoom()
-    {
-        user = new User()
-        {
-            Id = Guid.NewGuid(),
-            Name = userName,
-            Role = role,
-            IsActive = true
-        };
-        await hubConnection.SendAsync("JoinRoomAsync", room, user);
-        NavigationManager.NavigateTo($"/lobby/{room.Name}/{user.Name}");
-    }
-
-    public bool IsConnected =>
-        hubConnection.State == HubConnectionState.Connected;
-
-
-    public void Dispose()
-    {
-        _ = hubConnection.DisposeAsync();
-    }
 }
