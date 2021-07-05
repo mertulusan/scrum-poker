@@ -41,8 +41,8 @@ namespace ScrumPoker.UI.Hubs
             if (!room.Users.Any(p => p.Point == null))
             {
                 room.VotingTask.Status = JiraTaskStatus.Completed;
-                // ToDo: odadaki herkes mola verirse hesaplama patlıyor. düzeltyilecek
-                room.VotingTask.Average = Convert.ToDecimal(room.Users.Where(p => (int)p.Point >= 0).Average(p => (int)p.Point));
+                var votedUsers = room.Users.Where(p => (int)p.Point >= 0);
+                room.VotingTask.Average = Convert.ToDecimal(votedUsers.Any() ? votedUsers.Average(p => (int)p.Point) : 0);
             }
 
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);

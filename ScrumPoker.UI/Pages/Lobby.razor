@@ -35,7 +35,7 @@
 <TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
 
 <ul>
-    @foreach (var task in room?.VotedTaskList??new List<JiraTask>())
+    @foreach (var task in room?.VotedTaskList ?? new List<JiraTask>())
     {
         <h5>@task.Name : @task.Average</h5>
     }
@@ -81,14 +81,32 @@
         </div>
     </div>
 }
-else if (room?.VotingTask?.Status==JiraTaskStatus.Completed)
+else if (room?.VotingTask?.Status == JiraTaskStatus.Completed)
 {
     <h3 class="card-title">Avarage: @room.VotingTask.Average.ToString("###.##")</h3>
-    <div class="row">
-    <div class="col">
-        <button type="button" class="btn btn-success btn-lg" @onclick="StartVoting">Start Voting</button>
+    <div class="form-group row">
+        <div class="col-sm-5">
+            <input type="text" class="form-control" @bind="taskName" placeholder="User Name">
+        </div>
+
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Dropdown button
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                @foreach (var card in Enum.GetValues(typeof(CardPoints)).Cast<CardPoints>().ToList())
+                {
+                    <a class="dropdown-item">@ScrumPoker.Model.Extensions.GetEnumDescription(card)</a>
+                }
+            </div>
+        </div>
+
     </div>
-</div>
+    <div class="row">
+        <div class="col">
+            <button type="button" class="btn btn-success btn-lg" @onclick="StartVoting">Start Voting</button>
+        </div>
+    </div>
     @if (developers?.Count > 0)
     {
         @for (int i = 0; i < developers.Count; i += 5)
@@ -136,6 +154,7 @@ else
 
     [Parameter] public string RoomName { get; set; }
     [Parameter] public string Username { get; set; }
+
 
     private HubConnection hubConnection;
     private Room room;
