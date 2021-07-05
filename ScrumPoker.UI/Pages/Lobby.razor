@@ -125,7 +125,7 @@ else if (room?.VotingTask?.Status == JiraTaskStatus.Completed)
         }
     }
 }
-else if (room?.VotingTask?.Status == JiraTaskStatus.Voting && developers?.FirstOrDefault(x => x.Name == Username)?.Point != null)
+else if (RoleType.DEV != developers?.FirstOrDefault(x => x.Name == Username)?.Role || room?.VotingTask?.Status == JiraTaskStatus.Voting && developers?.FirstOrDefault(x => x.Name == Username)?.Point != null)
 {
     @if (developers?.Count > 0)
     {
