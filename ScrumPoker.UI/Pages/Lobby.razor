@@ -1,10 +1,6 @@
-﻿@page "/lobby/{roomName}/{userName}"
-@using Microsoft.AspNetCore.SignalR.Client
-@using ScrumPoker.Model.Model
-@using ScrumPoker.Model.Enums
-@using ScrumPoker.UI.Components
+﻿@page "/lobby/{roomName}"
 @inject NavigationManager NavigationManager
-
+@inject ILocalStorageService localStorage
 
 <style type="text/css">
     .user-list {
@@ -32,7 +28,7 @@
 </style>
 
 @* 10dan düşük olduğunda +20 dakika için huba gönderim yapılmalı. senkronize değil şu an *@
-<TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
+<TimerComponent room="@room" hubConnection="@hubConnection" username="@userName" />
 
 <ul>
     @foreach (var task in room?.VotedTaskList ?? new List<JiraTask>())
@@ -125,7 +121,7 @@ else if (room?.VotingTask?.Status == JiraTaskStatus.Completed)
         }
     }
 }
-else if (RoleType.DEV != developers?.FirstOrDefault(x => x.Name == Username)?.Role || room?.VotingTask?.Status == JiraTaskStatus.Voting && developers?.FirstOrDefault(x => x.Name == Username)?.Point != null)
+else if (userRole != RoleType.DEV || room?.VotingTask?.Status == JiraTaskStatus.Voting && developers?.FirstOrDefault(x => x.Name == userName)?.Point != null)
 {
     @if (developers?.Count > 0)
     {
@@ -147,14 +143,15 @@ else if (RoleType.DEV != developers?.FirstOrDefault(x => x.Name == Username)?.Ro
 }
 else
 {
-    <Voting votinghubConnection=@hubConnection votingRoom=@room user=@developers?.FirstOrDefault(x => x.Name == Username) />
+    <Voting votinghubConnection=@hubConnection votingRoom=@room />
 }
 
 @code {
 
     [Parameter] public string RoomName { get; set; }
-    [Parameter] public string Username { get; set; }
 
+    private string userName { get; set; }
+    private RoleType userRole { get; set; }
     private string taskName;
     private CardPoints agreedCard;
 
@@ -164,6 +161,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        GetLocalStorage();
+
         hubConnection = new HubConnectionBuilder()
             .WithUrl(NavigationManager.ToAbsoluteUri("/roomhub"))
             .Build();
@@ -187,5 +186,11 @@ else
         };
 
         await hubConnection.SendAsync("StartVoting", RoomName, task);
+    }
+
+    async void GetLocalStorage()
+    {
+        userName = await localStorage.GetItemAsStringAsync("userName");
+        userRole = await localStorage.GetItemAsync<RoleType>("userRole");
     }
 }
