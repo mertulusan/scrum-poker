@@ -32,16 +32,16 @@ namespace ScrumPoker.UI.Hubs
             await Clients.Group(room.Name).SendAsync("ReceiveMessage", room);
         }
 
-        public async Task SendMessageRoomMateAsync(string roomName, User user, CardPoints cardPoint)
+        public async Task SendMessageRoomMateAsync(string roomName, string userName, CardPoints cardPoint)
         {
             Room room = memoryCache.Get<Room>(roomName);
-            var roomUser = room.Users.FirstOrDefault(p => p.Id == user.Id);
+            var roomUser = room.Users.FirstOrDefault(p => p.Name == userName);
             roomUser.Point = cardPoint;
 
             if (!room.Users.Any(p => p.Point == null && p.Role == RoleType.DEV))
             {
                 room.VotingTask.Status = JiraTaskStatus.Completed;
-                var votedUsers = room.Users.Where(p =>p.Role == RoleType.DEV && (int)p.Point >= 0  ).ToList();
+                var votedUsers = room.Users.Where(p => p.Role == RoleType.DEV && (int)p.Point >= 0).ToList();
                 room.VotingTask.Average = Convert.ToDecimal(votedUsers.Any() ? votedUsers.Average(p => (int)p.Point) : 0);
             }
 
