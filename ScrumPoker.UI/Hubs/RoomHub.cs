@@ -36,7 +36,15 @@ namespace ScrumPoker.UI.Hubs
         {
             Room room = memoryCache.Get<Room>(roomName);
             var roomUser = room.Users.FirstOrDefault(p => p.Id == user.Id);
-            roomUser.Point = (int)cardPoint;
+            roomUser.Point = cardPoint;
+
+            if (!room.Users.Any(p => p.Point == null))
+            {
+                room.VotingTask.Status = JiraTaskStatus.Completed;
+                // ToDo: odadaki herkes mola verirse hesaplama patlıyor. düzeltyilecek
+                room.VotingTask.Average = Convert.ToDecimal(room.Users.Where(p => (int)p.Point >= 0).Average(p => (int)p.Point));
+            }
+
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
 
@@ -50,7 +58,17 @@ namespace ScrumPoker.UI.Hubs
         public async Task StartVoting(string roomName, JiraTask task)
         {
             Room room = memoryCache.Get<Room>(roomName);
+
+            if (room.VotingTask != null)
+                room.VotedTaskList.Add(room.VotingTask);
+
+            var taskId = !room.VotedTaskList.Any() ? 1 : room.VotedTaskList.Max(p => p.Id) + 1;
+            task.Id = taskId;
+            task.Name = $"Task {taskId}";
+
             room.VotingTask = task;
+
+            room.Users.ForEach(f => f.Point = null);
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
 
@@ -68,7 +86,7 @@ namespace ScrumPoker.UI.Hubs
         {
             await Clients.All.SendAsync("ReceiveMessage", user, message);
         }
-        
+
         public async Task AddTimeRoom(string roomName)
         {
             Room room = memoryCache.Get<Room>(roomName);

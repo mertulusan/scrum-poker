@@ -6,7 +6,6 @@ namespace ScrumPoker.Model.Enums
 {
     public enum JiraTaskStatus
     {
-        Started = 0,
         Voting = 1,
         Completed = 2,
         Canceled = 9
