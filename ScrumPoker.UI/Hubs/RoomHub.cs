@@ -38,11 +38,11 @@ namespace ScrumPoker.UI.Hubs
             var roomUser = room.Users.FirstOrDefault(p => p.Id == user.Id);
             roomUser.Point = cardPoint;
 
-            if (!room.Users.Any(p => p.Point == null))
+            if (!room.Users.Any(p => p.Point == null && p.Role == RoleType.DEV))
             {
                 room.VotingTask.Status = JiraTaskStatus.Completed;
-                // ToDo: odadaki herkes mola verirse hesaplama patlıyor. düzeltyilecek
-                room.VotingTask.Average = Convert.ToDecimal(room.Users.Where(p => (int)p.Point >= 0).Average(p => (int)p.Point));
+                var votedUsers = room.Users.Where(p =>p.Role == RoleType.DEV && (int)p.Point >= 0  ).ToList();
+                room.VotingTask.Average = Convert.ToDecimal(votedUsers.Any() ? votedUsers.Average(p => (int)p.Point) : 0);
             }
 
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
