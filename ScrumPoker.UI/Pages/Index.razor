@@ -65,7 +65,7 @@
 
     private void GeneratePrivateRoom()
     {
-        room.Name = Guid.NewGuid().ToString();
+        room.Name = Guid.NewGuid().ToString("N");
     }
 
     protected override async Task OnInitializedAsync()
