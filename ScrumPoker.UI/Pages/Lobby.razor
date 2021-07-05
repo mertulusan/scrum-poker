@@ -96,7 +96,7 @@ else
     private HubConnection hubConnection;
     private Room room;
     private List<User> developers;
-    private bool isVoting => room?.VotingTask?.Status == JiraTaskStatus.Started || room?.VotingTask?.Status == JiraTaskStatus.Voting;
+    private bool isVoting => room?.VotingTask?.Status == JiraTaskStatus.Voting;
 
     protected override async Task OnInitializedAsync()
     {
@@ -118,11 +118,13 @@ else
     protected async Task StartVoting()
     {
         //Id ve Name test amaçlı doldurulmuştur, bu kısım düzenlecek.
+        var taskId = !room.VotedTaskList.Any() ? 1 : room.VotedTaskList.Max(p => p.Id) + 1;
+
         var task = new JiraTask
         {
-            Id = 0,
-            Name = "Task 1",
-            Status = JiraTaskStatus.Started
+            Id = taskId,
+            Name = $"Task {taskId}",
+            Status = JiraTaskStatus.Voting
         };
 
         await hubConnection.SendAsync("StartVoting", RoomName, task);
