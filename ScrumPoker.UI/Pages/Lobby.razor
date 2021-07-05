@@ -155,6 +155,8 @@ else
     [Parameter] public string RoomName { get; set; }
     [Parameter] public string Username { get; set; }
 
+    private string taskName;
+    private CardPoints agreedCard;
 
     private HubConnection hubConnection;
     private Room room;
