@@ -27,6 +27,8 @@ namespace ScrumPoker.UI.Hubs
 
                 room = memoryCache.Set<Room>(model.Name, model, DateTime.Now.AddMinutes(20));
             }
+
+            user.ConnectionId = Context.ConnectionId;
             room.Users.Add(user);
             await Groups.AddToGroupAsync(Context.ConnectionId, room.Name);
             await Clients.Group(room.Name).SendAsync("ReceiveMessage", room);
@@ -77,10 +79,10 @@ namespace ScrumPoker.UI.Hubs
         //    await Clients.Group(roomName).SendAsync("Receiver", $"{Context.ConnectionId} has joined the group {roomName}.");
         //}
 
-        public async Task LeaveRoomAsync(string groupName)
-        {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
-        }
+        //public async Task LeaveRoomAsync(string groupName)
+        //{
+        //    await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+        //}
 
         public async Task SendMessage(string user, string message)
         {
@@ -92,6 +94,15 @@ namespace ScrumPoker.UI.Hubs
             Room room = memoryCache.Get<Room>(roomName);
             room.EndDate = room.EndDate.AddMinutes(20);
             memoryCache.Set<Room>(roomName, room, DateTime.Now.AddMinutes(20));
+            await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
+        }
+
+        public async Task LeaveRoomAsync(string roomName, string userName)
+        {
+            Room room = memoryCache.Get<Room>(roomName);
+            var user = room.Users.FirstOrDefault(p => p.Name.Equals(userName));
+            room.Users.Remove(user);
+            await Groups.RemoveFromGroupAsync(user.ConnectionId, roomName);
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
     }

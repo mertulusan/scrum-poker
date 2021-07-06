@@ -4,6 +4,7 @@
 @using ScrumPoker.Model.Enums
 @using ScrumPoker.UI.Components
 @inject NavigationManager NavigationManager
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 
 
 <style type="text/css">
@@ -68,6 +69,12 @@
                                             <div class="user-card border">
                                                 <h5 class="card-title">@developer.Name</h5>
                                                 <span class="badge rounded-pill @(developer.IsActive ? "bg-success" : "bg-danger") text-white">@(developer.IsActive ? "Online" : "Offline")</span>
+                                                @if (isAdmin())
+                                                {
+                                                    <span>mert</span>
+                                                    <button @onclick="@(p=>KickUser(developer.Name))" style="margin-left: auto;margin-bottom: auto; margin-top: 0; margin-right: 0; padding:15px 15px 15px 15px;">x</button>
+                                                }
+
                                             </div>
                                         </div>
                                     }
@@ -155,28 +162,55 @@ else
     [Parameter] public string RoomName { get; set; }
     [Parameter] public string Username { get; set; }
 
+    private string userName { get; set; }
+    private int userRole { get; set; }
+
     private string taskName;
     private CardPoints agreedCard;
 
     private HubConnection hubConnection;
     private Room room;
+    public Room _room
+    {
+        get
+        {
+            return room;
+        }
+        set
+        {
+            room = value;
+            if (room.Users.FirstOrDefault(p => p.Name.Equals(Username)) == null)
+                NavigationManager.NavigateTo($"/");
+        }
+    }
+
     private List<User> developers;
 
     protected override async Task OnInitializedAsync()
     {
+
         hubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri("/roomhub"))
-            .Build();
+        .WithUrl(NavigationManager.ToAbsoluteUri("/roomhub"))
+        .Build();
 
         hubConnection.On<Room>("ReceiveMessage", (data) =>
         {
-            room = data;
+            _room = data;
             developers = data.Users.Where(x => x.Role == RoleType.DEV).ToList();
             StateHasChanged();
         });
 
         await hubConnection.StartAsync();
         await hubConnection.SendAsync("GetGroupMessages", RoomName);
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            userRole = await localStorage.GetItemAsync<int>("userRole");
+        }
     }
 
     protected async Task StartVoting()
@@ -188,4 +222,16 @@ else
 
         await hubConnection.SendAsync("StartVoting", RoomName, task);
     }
+
+    void KickUser(string kickUserName)
+    {
+        hubConnection.SendAsync("LeaveRoomAsync", room.Name, kickUserName); 
+        localStorage.ClearAsync();
+    }
+
+    private bool isAdmin()
+    {
+        return ((int)userRole == (int)RoleType.SM || (int)userRole == (int)RoleType.PO);
+    }
+
 }

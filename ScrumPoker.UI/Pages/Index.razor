@@ -107,6 +107,6 @@
     {
         await localStorage.SetItemAsync("roomName", room.Name);
         await localStorage.SetItemAsync("userName", userName);
-        await localStorage.SetItemAsync<RoleType>("userRole", user.Role);
+        await localStorage.SetItemAsync<int>("userRole", (int)user.Role);
     }
 }
