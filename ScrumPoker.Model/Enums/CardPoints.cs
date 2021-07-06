@@ -7,6 +7,8 @@ namespace ScrumPoker.Model.Enums
 {
     public enum CardPoints
     {
+        [Description("0")]
+        Zero = 0,
         [Description("1")]
         One = 1,
         [Description("2")]

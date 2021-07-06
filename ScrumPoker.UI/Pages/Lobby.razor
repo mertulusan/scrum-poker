@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @using ScrumPoker.Model.Model
 @using ScrumPoker.Model.Enums
+@using ScrumPoker.Common
 @using ScrumPoker.UI.Components
 @inject NavigationManager NavigationManager
 
@@ -31,13 +32,12 @@
     }
 </style>
 
-@* 10dan düşük olduğunda +20 dakika için huba gönderim yapılmalı. senkronize değil şu an *@
 <TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
 
 <ul>
     @foreach (var task in room?.VotedTaskList ?? new List<JiraTask>())
     {
-        <h5>@task.Name : @task.Average</h5>
+        <li><h5>@task.Name : @ScrumPoker.Model.Extensions.GetEnumDescription(task.ComfirmedPoint)</h5></li>
     }
 </ul>
 
@@ -84,29 +84,30 @@
 else if (room?.VotingTask?.Status == JiraTaskStatus.Completed)
 {
     <h3 class="card-title">Avarage: @room.VotingTask.Average.ToString("###.##")</h3>
-    <div class="form-group row">
-        <div class="col-sm-5">
-            <input type="text" class="form-control" @bind="taskName" placeholder="User Name">
-        </div>
 
-        <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Dropdown button
-            </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    @if (new[] { RoleType.PO, RoleType.SM }.Contains((RoleType)room?.Users?.FirstOrDefault(p => p.Name == Username)?.Role))
+    {
+        <div class="form-group row">
+            <div class="col-sm-5">
+                <input type="text" class="form-control" @bind="votedTaskName" placeholder="Task Name">
+            </div>
+
+            @*ToDo: değişiklik olmazsa null geliyor*@
+            <select @bind=@comfirmedTaskPoint>
                 @foreach (var card in Enum.GetValues(typeof(CardPoints)).Cast<CardPoints>().ToList())
                 {
-                    <a class="dropdown-item">@ScrumPoker.Model.Extensions.GetEnumDescription(card)</a>
+                    <option value=@card selected=@(VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList())==card)>@ScrumPoker.Model.Extensions.GetEnumDescription(card)</option>
                 }
-            </div>
+            </select>
+
         </div>
 
-    </div>
-    <div class="row">
-        <div class="col">
-            <button type="button" class="btn btn-success btn-lg" @onclick="StartVoting">Start Voting</button>
+        <div class="row">
+            <div class="col">
+                <button type="button" class="btn btn-success btn-lg" @onclick="SaveVoting">Save Voting</button>
+            </div>
         </div>
-    </div>
+    }
     @if (developers?.Count > 0)
     {
         @for (int i = 0; i < developers.Count; i += 5)
@@ -170,6 +171,10 @@ else
     private Room room;
     private List<User> developers;
 
+    private string votedTaskName;
+    private CardPoints? comfirmedTaskPoint;
+    private int nearestPoint;
+
     protected override async Task OnInitializedAsync()
     {
         hubConnection = new HubConnectionBuilder()
@@ -196,13 +201,18 @@ else
 
         await hubConnection.SendAsync("StartVoting", RoomName, task);
     }
+
+    protected async Task SaveVoting()
+    {
+        Console.WriteLine("aaa" + (int)comfirmedTaskPoint);
+        await hubConnection.SendAsync("SaveTask", RoomName, votedTaskName, comfirmedTaskPoint);
+
+        votedTaskName = string.Empty;
+        comfirmedTaskPoint = null;
+    }
+
     protected async Task StopVoting()
     {
-        var task = new JiraTask
-        {
-            Status = JiraTaskStatus.Voting
-        };
-
-        await hubConnection.SendAsync("StopVoting", RoomName, task);
+        await hubConnection.SendAsync("StopVoting", RoomName);
     }
 }

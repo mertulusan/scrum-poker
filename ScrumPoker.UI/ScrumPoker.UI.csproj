@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ScrumPoker.Common\ScrumPoker.Common.csproj" />
     <ProjectReference Include="..\ScrumPoker.Model\ScrumPoker.Model.csproj" />
   </ItemGroup>
 

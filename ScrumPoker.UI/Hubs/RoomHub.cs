@@ -58,8 +58,8 @@ namespace ScrumPoker.UI.Hubs
         {
             Room room = memoryCache.Get<Room>(roomName);
 
-            if (room.VotingTask != null)
-                room.VotedTaskList.Add(room.VotingTask);
+            //if (room.VotingTask != null)
+            //    room.VotedTaskList.Add(room.VotingTask);
 
             var taskId = !room.VotedTaskList.Any() ? 1 : room.VotedTaskList.Max(p => p.Id) + 1;
             task.Id = taskId;
@@ -67,17 +67,33 @@ namespace ScrumPoker.UI.Hubs
 
             room.VotingTask = task;
 
-            room.Users.ForEach(f => f.Point = null);
+            //room.Users.ForEach(f => f.Point = null);
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
-        public async Task StopVoting(string roomName, JiraTask task)
+        public async Task StopVoting(string roomName)
         {
             Room room = memoryCache.Get<Room>(roomName);
 
             room.VotingTask.Status = JiraTaskStatus.Completed;
-            var votedUsers = room.Users.Where(p => p.Role == RoleType.DEV && p.Point!=null && (int)p.Point >= 0).ToList();
+            var votedUsers = room.Users.Where(p => p.Role == RoleType.DEV && p.Point != null && (int)p.Point >= 0).ToList();
             room.VotingTask.Average = Convert.ToDecimal(votedUsers.Any() ? votedUsers.Average(p => (int)p.Point) : 0);
 
+            await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
+        }
+
+        public async Task SaveTask(string roomName, string votedTaskName, CardPoints comfirmedPoint)
+        {
+            Room room = memoryCache.Get<Room>(roomName);
+
+            if (room.VotingTask != null)
+            {
+                room.VotingTask.Name = votedTaskName;
+                room.VotingTask.ComfirmedPoint = comfirmedPoint;
+                room.VotedTaskList.Add(room.VotingTask);
+            }
+
+            room.VotingTask = null;
+            room.Users.ForEach(f => f.Point = null);
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
 
