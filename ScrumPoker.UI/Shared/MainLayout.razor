@@ -30,7 +30,7 @@
             {
                 Room room = memoryCache.Get<Room>(roomName);
                 if (room != null && room.Users.Any(x => x.Name == userName))
-                    navigationManager.NavigateTo($"/lobby/{roomName}");
+                    navigationManager.NavigateTo($"/lobby/{roomName}/{userName}");
                 else
                 {
                     await localStorage.ClearAsync();

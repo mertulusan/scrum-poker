@@ -2,6 +2,7 @@
 @inject IJSRuntime JsRuntime
 @inject ILocalStorageService localStorage
 
+
 <style type="text/css">
     .card {
         height: 225px;
@@ -39,7 +40,7 @@
     }
 </style>
 
-<h1>Current User: @localStorage.GetItemAsStringAsync("userName") @(localStorage.GetItemAsync<RoleType>("userRole").GetEnumDescription())</h1>
+<h1>Current User: @user.Name (@user.Role.GetEnumDescription())</h1>
 
 <div class="container w-75">
     @for (int i = 0; i < cards.Count; i += 4)
@@ -75,17 +76,18 @@
 
     <div class="row">
         <div class="col text-center">
-            <button type="button" class="btn btn-dark w-25" @onclick="() => Send(selectedCard)">Submit</button>
+            <button type="button" class="btn btn-dark w-25" @onclick="() => Send(user,selectedCard)">Submit</button>
         </div>
     </div>
 </div>
 
 @code {
     [Parameter]
+    public User user { get; set; }
+    [Parameter]
     public Room votingRoom { get; set; }
     [Parameter]
     public HubConnection votinghubConnection { get; set; }
-
 
     private List<CardPoints> cards = Enum.GetValues(typeof(CardPoints))
                                  .Cast<CardPoints>()
@@ -98,9 +100,9 @@
         selectedCard = card;
     }
 
-    private async Task Send(CardPoints card)
+    private async Task Send(User user, CardPoints card)
     {
-        string userName = await localStorage.GetItemAsStringAsync("userName");
-        await votinghubConnection.SendAsync("SendMessageRoomMateAsync", votingRoom.Name, userName, selectedCard);
+        await votinghubConnection.SendAsync("SendMessageRoomMateAsync", votingRoom.Name, user, selectedCard);
     }
+
 }
