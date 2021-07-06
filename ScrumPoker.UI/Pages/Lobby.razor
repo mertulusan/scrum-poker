@@ -127,6 +127,14 @@ else if (room?.VotingTask?.Status == JiraTaskStatus.Completed)
 }
 else if (RoleType.DEV != developers?.FirstOrDefault(x => x.Name == Username)?.Role || room?.VotingTask?.Status == JiraTaskStatus.Voting && developers?.FirstOrDefault(x => x.Name == Username)?.Point != null)
 {
+    @if (new[] { RoleType.PO, RoleType.SM }.Contains((RoleType)room?.Users?.FirstOrDefault(p => p.Name == Username)?.Role))
+    {
+        <div class="col">
+            <button type="button" class="btn btn-success btn-lg" @onclick="StopVoting">Stop Voting</button>
+        </div>
+    }
+
+
     @if (developers?.Count > 0)
     {
         @for (int i = 0; i < developers.Count; i += 5)
@@ -187,5 +195,14 @@ else
         };
 
         await hubConnection.SendAsync("StartVoting", RoomName, task);
+    }
+    protected async Task StopVoting()
+    {
+        var task = new JiraTask
+        {
+            Status = JiraTaskStatus.Voting
+        };
+
+        await hubConnection.SendAsync("StopVoting", RoomName, task);
     }
 }

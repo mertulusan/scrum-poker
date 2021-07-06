@@ -10,7 +10,8 @@ namespace ScrumPoker.Model
     {
         public static string GetEnumDescription<T>(this T value)
         {
-            if (!System.Enum.IsDefined(value.GetType(), value))
+            if (value == null ||
+                !System.Enum.IsDefined(value.GetType(), value))
                 return string.Empty;
 
             FieldInfo fi = value.GetType().GetField(value.ToString());
@@ -18,8 +19,8 @@ namespace ScrumPoker.Model
 
             if (attributes.Length > 0)
                 return attributes[0].Description;
-            else
-                return value.ToString();
+
+            return value.ToString();
         }
     }
 }

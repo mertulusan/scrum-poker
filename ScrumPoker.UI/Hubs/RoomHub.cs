@@ -22,7 +22,6 @@ namespace ScrumPoker.UI.Hubs
             Room room = memoryCache.Get<Room>(model.Name);
             if (room == null)
             {
-                model.Id = System.Guid.NewGuid();
                 model.EndDate = System.DateTime.Now.AddMinutes(20);
 
                 room = memoryCache.Set<Room>(model.Name, model, DateTime.Now.AddMinutes(20));
@@ -35,13 +34,13 @@ namespace ScrumPoker.UI.Hubs
         public async Task SendMessageRoomMateAsync(string roomName, User user, CardPoints cardPoint)
         {
             Room room = memoryCache.Get<Room>(roomName);
-            var roomUser = room.Users.FirstOrDefault(p => p.Id == user.Id);
+            var roomUser = room.Users.FirstOrDefault(p => p.Name == user.Name);
             roomUser.Point = cardPoint;
 
             if (!room.Users.Any(p => p.Point == null && p.Role == RoleType.DEV))
             {
                 room.VotingTask.Status = JiraTaskStatus.Completed;
-                var votedUsers = room.Users.Where(p =>p.Role == RoleType.DEV && (int)p.Point >= 0  ).ToList();
+                var votedUsers = room.Users.Where(p => p.Role == RoleType.DEV && (int)p.Point >= 0).ToList();
                 room.VotingTask.Average = Convert.ToDecimal(votedUsers.Any() ? votedUsers.Average(p => (int)p.Point) : 0);
             }
 
@@ -71,11 +70,16 @@ namespace ScrumPoker.UI.Hubs
             room.Users.ForEach(f => f.Point = null);
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
+        public async Task StopVoting(string roomName, JiraTask task)
+        {
+            Room room = memoryCache.Get<Room>(roomName);
 
-        //public async Task ReceiverMessageRoomMateAsync(string roomName)
-        //{
-        //    await Clients.Group(roomName).SendAsync("Receiver", $"{Context.ConnectionId} has joined the group {roomName}.");
-        //}
+            room.VotingTask.Status = JiraTaskStatus.Completed;
+            var votedUsers = room.Users.Where(p => p.Role == RoleType.DEV && p.Point!=null && (int)p.Point >= 0).ToList();
+            room.VotingTask.Average = Convert.ToDecimal(votedUsers.Any() ? votedUsers.Average(p => (int)p.Point) : 0);
+
+            await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
+        }
 
         public async Task LeaveRoomAsync(string groupName)
         {
