@@ -8,6 +8,7 @@ namespace ScrumPoker.Model.Model
         public int Id { get; set; }
         public string Name { get; set; }
         public decimal Average { get; set; }
+        public CardPoints ComfirmedPoint { get; set; }
         public JiraTaskStatus Status { get; set; }
     }
 }

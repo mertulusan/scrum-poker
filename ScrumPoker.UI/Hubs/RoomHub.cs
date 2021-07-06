@@ -22,7 +22,6 @@ namespace ScrumPoker.UI.Hubs
             Room room = memoryCache.Get<Room>(model.Name);
             if (room == null)
             {
-                model.Id = System.Guid.NewGuid();
                 model.EndDate = System.DateTime.Now.AddMinutes(20);
 
                 room = memoryCache.Set<Room>(model.Name, model, DateTime.Now.AddMinutes(20));
@@ -35,13 +34,13 @@ namespace ScrumPoker.UI.Hubs
         public async Task SendMessageRoomMateAsync(string roomName, User user, CardPoints cardPoint)
         {
             Room room = memoryCache.Get<Room>(roomName);
-            var roomUser = room.Users.FirstOrDefault(p => p.Id == user.Id);
+            var roomUser = room.Users.FirstOrDefault(p => p.Name == user.Name);
             roomUser.Point = cardPoint;
 
             if (!room.Users.Any(p => p.Point == null && p.Role == RoleType.DEV))
             {
                 room.VotingTask.Status = JiraTaskStatus.Completed;
-                var votedUsers = room.Users.Where(p =>p.Role == RoleType.DEV && (int)p.Point >= 0  ).ToList();
+                var votedUsers = room.Users.Where(p => p.Role == RoleType.DEV && (int)p.Point >= 0).ToList();
                 room.VotingTask.Average = Convert.ToDecimal(votedUsers.Any() ? votedUsers.Average(p => (int)p.Point) : 0);
             }
 
@@ -59,8 +58,8 @@ namespace ScrumPoker.UI.Hubs
         {
             Room room = memoryCache.Get<Room>(roomName);
 
-            if (room.VotingTask != null)
-                room.VotedTaskList.Add(room.VotingTask);
+            //if (room.VotingTask != null)
+            //    room.VotedTaskList.Add(room.VotingTask);
 
             var taskId = !room.VotedTaskList.Any() ? 1 : room.VotedTaskList.Max(p => p.Id) + 1;
             task.Id = taskId;
@@ -68,14 +67,35 @@ namespace ScrumPoker.UI.Hubs
 
             room.VotingTask = task;
 
-            room.Users.ForEach(f => f.Point = null);
+            //room.Users.ForEach(f => f.Point = null);
+            await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
+        }
+        public async Task StopVoting(string roomName)
+        {
+            Room room = memoryCache.Get<Room>(roomName);
+
+            room.VotingTask.Status = JiraTaskStatus.Completed;
+            var votedUsers = room.Users.Where(p => p.Role == RoleType.DEV && p.Point != null && (int)p.Point >= 0).ToList();
+            room.VotingTask.Average = Convert.ToDecimal(votedUsers.Any() ? votedUsers.Average(p => (int)p.Point) : 0);
+
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
 
-        //public async Task ReceiverMessageRoomMateAsync(string roomName)
-        //{
-        //    await Clients.Group(roomName).SendAsync("Receiver", $"{Context.ConnectionId} has joined the group {roomName}.");
-        //}
+        public async Task SaveTask(string roomName, string votedTaskName, CardPoints comfirmedPoint)
+        {
+            Room room = memoryCache.Get<Room>(roomName);
+
+            if (room.VotingTask != null)
+            {
+                room.VotingTask.Name = votedTaskName;
+                room.VotingTask.ComfirmedPoint = comfirmedPoint;
+                room.VotedTaskList.Add(room.VotingTask);
+            }
+
+            room.VotingTask = null;
+            room.Users.ForEach(f => f.Point = null);
+            await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
+        }
 
         public async Task LeaveRoomAsync(string groupName)
         {

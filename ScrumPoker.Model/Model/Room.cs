@@ -6,8 +6,6 @@ namespace ScrumPoker.Model.Model
 {
     public class Room
     {
-        public Guid Id { get; set; }
-
         [Required]
         [StringLength(37, ErrorMessage = "maximum 36.")]
         public string Name { get; set; }
