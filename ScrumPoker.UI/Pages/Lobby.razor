@@ -92,10 +92,14 @@ else if (room?.VotingTask?.Status == JiraTaskStatus.Completed)
                 <input type="text" class="form-control" @bind="votedTaskName" placeholder="Task Name">
             </div>
 
-            @*ToDo: değişiklik olmazsa null geliyor*@
             <select @bind=@comfirmedTaskPoint>
                 @foreach (var card in Enum.GetValues(typeof(CardPoints)).Cast<CardPoints>().ToList())
                 {
+                    @*Parametrenin ilk değeri setleniyor*@
+                    if (VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList()) == card)
+                    {
+                        comfirmedTaskPoint = card;
+                    }
                     <option value=@card selected=@(VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList())==card)>@ScrumPoker.Model.Extensions.GetEnumDescription(card)</option>
                 }
             </select>
