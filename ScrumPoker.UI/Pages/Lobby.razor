@@ -34,17 +34,9 @@
 
 <TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
 
-<ul>
-    @foreach (var task in room?.VotedTaskList ?? new List<JiraTask>())
-    {
-        <li><h5>@task.Name : @ScrumPoker.Model.Extensions.GetEnumDescription(task.ComfirmedPoint)</h5></li>
-    }
-</ul>
-
-
-
 @if (room?.VotingTask?.Status == null)
-{<div class="container">
+{
+    <div class="container">
         <div class="row mb-5">
             <div class="col">
                 <div class="card">
@@ -56,6 +48,60 @@
                             </div>
                         </div>
 
+                        @if (developers?.Count > 0)
+                        {
+                            @for (int i = 0; i < developers.Count; i += 5)
+                            {
+                                <div class="row d-flex justify-content-center">
+                                    @foreach (var developer in developers.Skip(i).Take(5))
+                                    {
+                                        <div class="user-list">
+                                            <div class="user-card border">
+                                                <h5 class="card-title">@developer.Name</h5>
+                                                <span class="badge @(developer.IsActive ? "badge-success" : "badge-danger") text-white">@(developer.IsActive ? "joined" : "offline")</span>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (room?.VotedTaskList?.Count > 0)
+        {
+            <div class="card">
+                <div class="card-header">
+                    Task History
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var task in room?.VotedTaskList ?? new List<JiraTask>())
+                    {
+                        <li class="list-group-item">@task.Name - @ScrumPoker.Model.Extensions.GetEnumDescription(task.ComfirmedPoint)</li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+}
+else if (room?.VotingTask?.Status == JiraTaskStatus.Completed)
+{
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3 class="card-title">Room: @RoomName</h3>
+                        <h5 class="card-subtitle">Avarage: @room.VotingTask.Average.ToString("###.##")</h5>
+
+                        @if (new[] { RoleType.PO, RoleType.SM }.Contains((RoleType)room?.Users?.FirstOrDefault(p => p.Name == Username)?.Role))
+                        {
+                            <button type="button" class="btn btn-primary mt-3" data-toggle="modal" data-target="#exampleModal">
+                                Final Decision
+                            </button>
+                        }
 
                         @if (developers?.Count > 0)
                         {
@@ -67,96 +113,97 @@
                                         <div class="user-list">
                                             <div class="user-card border">
                                                 <h5 class="card-title">@developer.Name</h5>
-                                                <span class="badge rounded-pill @(developer.IsActive ? "bg-success" : "bg-danger") text-white">@(developer.IsActive ? "Online" : "Offline")</span>
+                                                <span class="badge rounded-pill">@ScrumPoker.Model.Extensions.GetEnumDescription(@developer.Point)</span>
                                             </div>
                                         </div>
                                     }
                                 </div>
                             }
                         }
-
                     </div>
                 </div>
             </div>
         </div>
     </div>
-}
-else if (room?.VotingTask?.Status == JiraTaskStatus.Completed)
-{
-    <h3 class="card-title">Avarage: @room.VotingTask.Average.ToString("###.##")</h3>
 
-    @if (new[] { RoleType.PO, RoleType.SM }.Contains((RoleType)room?.Users?.FirstOrDefault(p => p.Name == Username)?.Role))
-    {
-        <div class="form-group row">
-            <div class="col-sm-5">
-                <input type="text" class="form-control" @bind="votedTaskName" placeholder="Task Name">
-            </div>
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Final Decision</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted">The card point selected here will be the final decision for the task.</p>
 
-            <select @bind=@comfirmedTaskPoint>
-                @foreach (var card in Enum.GetValues(typeof(CardPoints)).Cast<CardPoints>().ToList())
-                {
-                    @*Parametrenin ilk değeri setleniyor*@
-                    if (VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList()) == card)
-                    {
-                        comfirmedTaskPoint = card;
-                    }
-                    <option value=@card selected=@(VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList())==card)>@ScrumPoker.Model.Extensions.GetEnumDescription(card)</option>
-                }
-            </select>
-
-        </div>
-
-        <div class="row">
-            <div class="col">
-                <button type="button" class="btn btn-success btn-lg" @onclick="SaveVoting">Save Voting</button>
-            </div>
-        </div>
-    }
-    @if (developers?.Count > 0)
-    {
-        @for (int i = 0; i < developers.Count; i += 5)
-        {
-            <div class="row d-flex justify-content-center">
-                @foreach (var developer in developers.Skip(i).Take(5))
-                {
-                    <div class="user-list">
-                        <div class="user-card border">
-                            <h5 class="card-title">@developer.Name</h5>
-                            <span class="badge rounded-pill">@ScrumPoker.Model.Extensions.GetEnumDescription(@developer.Point)</span>
-                        </div>
+                    <div class="form-group">
+                        <label>Task</label>
+                        <input type="text" class="form-control" @bind="votedTaskName" placeholder="Task Name">
                     </div>
-                }
+                    <div class="form-group">
+                        <label>Point</label>
+                        <select class="form-control" @bind=@comfirmedTaskPoint>
+                            @foreach (var card in Enum.GetValues(typeof(CardPoints)).Cast<CardPoints>().ToList())
+                            {
+                                @*Parametrenin ilk değeri setleniyor*@
+                                if (VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList()) == card)
+                                {
+                                    comfirmedTaskPoint = card;
+                                }
+                                <option value=@card selected=@(VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList()) == card)>@ScrumPoker.Model.Extensions.GetEnumDescription(card)</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" @onclick="SaveVoting" data-dismiss="modal">Save Voting</button>
+                </div>
             </div>
-        }
-    }
+        </div>
+    </div>
 }
 else if (RoleType.DEV != developers?.FirstOrDefault(x => x.Name == Username)?.Role || room?.VotingTask?.Status == JiraTaskStatus.Voting && developers?.FirstOrDefault(x => x.Name == Username)?.Point != null)
 {
-    @if (new[] { RoleType.PO, RoleType.SM }.Contains((RoleType)room?.Users?.FirstOrDefault(p => p.Name == Username)?.Role))
-    {
-        <div class="col">
-            <button type="button" class="btn btn-success btn-lg" @onclick="StopVoting">Stop Voting</button>
-        </div>
-    }
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3 class="card-title">Room: @RoomName</h3>
 
+                        @if (new[] { RoleType.PO, RoleType.SM }.Contains((RoleType)room?.Users?.FirstOrDefault(p => p.Name == Username)?.Role))
+                        {
+                            <div class="row">
+                                <div class="col">
+                                    <button type="button" class="btn btn-success btn-lg" @onclick="StopVoting">Stop Voting</button>
+                                </div>
+                            </div>
+                        }
 
-    @if (developers?.Count > 0)
-    {
-        @for (int i = 0; i < developers.Count; i += 5)
-        {
-            <div class="row d-flex justify-content-center">
-                @foreach (var developer in developers.Skip(i).Take(5))
-                {
-                    <div class="user-list">
-                        <div class="user-card border">
-                            <h5 class="card-title">@developer.Name</h5>
-                            <span class="badge rounded-pill @(developer.IsActive && developer.Point!=null? "bg-success" : "bg-danger") text-white">@(developer.IsActive ? (developer.Point != null? "Voted":"Waiting") : "Offline")</span>
-                        </div>
+                        @if (developers?.Count > 0)
+                        {
+                            @for (int i = 0; i < developers.Count; i += 5)
+                            {
+                                <div class="row d-flex justify-content-center">
+                                    @foreach (var developer in developers.Skip(i).Take(5))
+                                    {
+                                        <div class="user-list">
+                                            <div class="user-card border">
+                                                <h5 class="card-title">@developer.Name</h5>
+                                                <span class="badge @(developer.IsActive && developer.Point != null ? "badge-success" : "badge-warning")">@(developer.IsActive ? (developer.Point != null ? "voted" : "voting") : "offline")</span>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
                     </div>
-                }
+                </div>
             </div>
-        }
-    }
+        </div>
+    </div>
 }
 else
 {
@@ -208,7 +255,6 @@ else
 
     protected async Task SaveVoting()
     {
-        Console.WriteLine("aaa" + (int)comfirmedTaskPoint);
         await hubConnection.SendAsync("SaveTask", RoomName, votedTaskName, comfirmedTaskPoint);
 
         votedTaskName = string.Empty;
