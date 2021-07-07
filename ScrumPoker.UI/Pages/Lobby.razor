@@ -32,7 +32,11 @@
     }
 </style>
 
-<TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
+<div class="row">
+    <div class="col">
+        <TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
+    </div>
+</div>
 
 @if (room?.VotingTask?.Status == null)
 {
@@ -98,7 +102,7 @@ else if (room?.VotingTask?.Status == JiraTaskStatus.Completed)
 
                         @if (new[] { RoleType.PO, RoleType.SM }.Contains((RoleType)room?.Users?.FirstOrDefault(p => p.Name == Username)?.Role))
                         {
-                            <button type="button" class="btn btn-primary mt-3" data-toggle="modal" data-target="#exampleModal">
+                            <button type="button" class="btn btn-primary mt-3" data-toggle="modal" data-target="#exampleModal" @onclick=@(() => comfirmedTaskPoint = VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList()))>
                                 Final Decision
                             </button>
                         }
@@ -147,12 +151,7 @@ else if (room?.VotingTask?.Status == JiraTaskStatus.Completed)
                         <select class="form-control" @bind=@comfirmedTaskPoint>
                             @foreach (var card in Enum.GetValues(typeof(CardPoints)).Cast<CardPoints>().ToList())
                             {
-                                @*Parametrenin ilk değeri setleniyor*@
-                                if (VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList()) == card)
-                                {
-                                    comfirmedTaskPoint = card;
-                                }
-                                <option value=@card selected=@(VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList()) == card)>@ScrumPoker.Model.Extensions.GetEnumDescription(card)</option>
+                                <option value=@card>@ScrumPoker.Model.Extensions.GetEnumDescription(card)</option>
                             }
                         </select>
                     </div>
