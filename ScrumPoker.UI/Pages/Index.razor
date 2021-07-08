@@ -74,13 +74,6 @@
         hubConnection = new HubConnectionBuilder()
         .WithUrl(NavigationManager.ToAbsoluteUri("/roomhub"))
         .Build();
-
-        //hubConnection.On<Room>("ReceiveMessage", (data) =>
-        //{
-        //    room = data;
-        //    StateHasChanged();
-        //});
-
         await hubConnection.StartAsync();
     }
 
@@ -107,7 +100,7 @@
 
         SetLocalStorage();
         await hubConnection.SendAsync("JoinRoomAsync", room, user);
-        NavigationManager.NavigateTo($"/lobby/{room.Name}/{userName}");
+        NavigationManager.NavigateTo($"/lobby/{room.Name}/{user.Name}");
     }
 
     public bool IsConnected =>
@@ -116,12 +109,12 @@
 
     public void Dispose() =>
         _ = hubConnection.DisposeAsync();
-    }
 
     async void SetLocalStorage()
     {
         await localStorage.SetItemAsync("roomName", room.Name);
-        await localStorage.SetItemAsync("userName", userName);
+        await localStorage.SetItemAsync("userName", user.Name);
         await localStorage.SetItemAsync<int>("userRole", (int)user.Role);
     }
+
 }
