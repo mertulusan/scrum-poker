@@ -1,11 +1,7 @@
 ﻿@page "/voting"
 @inject IJSRuntime JsRuntime
-@using Microsoft.AspNetCore.SignalR.Client
-@using ScrumPoker.Model.Model
-@using System.Collections.Generic
-@using ScrumPoker.Model.Enums
-@using ScrumPoker.Model
-@using System
+@inject ILocalStorageService localStorage
+
 
 <style type="text/css">
     .card {

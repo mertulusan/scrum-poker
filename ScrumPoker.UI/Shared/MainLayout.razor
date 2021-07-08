@@ -1,8 +1,10 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager navigationManager
+@inject ILocalStorageService localStorage
+@inject IMemoryCache memoryCache
 
-
-<div class="page">   
-    <div class="main">       
+<div class="page">
+    <div class="main">
         <div class="row justify-content-center" style="margin-top:100px">
             <div class="col-10">
                 @Body
@@ -10,3 +12,37 @@
         </div>
     </div>
 </div>
+
+@code
+{
+    private HubConnection hubConnection;
+    private string roomName;
+    private string userName;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetLocalStorage();
+            if (string.IsNullOrEmpty(roomName) || string.IsNullOrEmpty(userName))
+                navigationManager.NavigateTo("/");
+            else
+            {
+                Room room = memoryCache.Get<Room>(roomName);
+                if (room != null && room.Users.Any(x => x.Name == userName))
+                    navigationManager.NavigateTo($"/lobby/{roomName}/{userName}");
+                else
+                {
+                    await localStorage.ClearAsync();
+                    navigationManager.NavigateTo("/");
+                }
+            }
+        }
+    }
+
+    async Task GetLocalStorage()
+    {
+        roomName = await localStorage.GetItemAsync<string>("roomName");
+        userName = await localStorage.GetItemAsync<string>("userName");
+    }
+}
