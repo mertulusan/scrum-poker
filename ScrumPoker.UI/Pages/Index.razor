@@ -1,10 +1,6 @@
 ﻿@page "/"
-
-@using Microsoft.AspNetCore.SignalR.Client
-@using ScrumPoker.Model.Model
-@using ScrumPoker.Model.Enums
-@using ScrumPoker.Model
 @inject NavigationManager NavigationManager
+@inject ILocalStorageService localStorage
 @implements IDisposable
 
 <div class="container w-50">
@@ -91,8 +87,10 @@
             Role = role,
             IsActive = true
         };
+
+        SetLocalStorage();
         await hubConnection.SendAsync("JoinRoomAsync", room, user);
-        NavigationManager.NavigateTo($"/lobby/{room.Name}/{user.Name}");
+        NavigationManager.NavigateTo($"/lobby/{room.Name}/{userName}");
     }
 
     public bool IsConnected =>
@@ -102,5 +100,12 @@
     public void Dispose()
     {
         _ = hubConnection.DisposeAsync();
+    }
+
+    async void SetLocalStorage()
+    {
+        await localStorage.SetItemAsync("roomName", room.Name);
+        await localStorage.SetItemAsync("userName", userName);
+        await localStorage.SetItemAsync<int>("userRole", (int)user.Role);
     }
 }
