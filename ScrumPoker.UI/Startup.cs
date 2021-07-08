@@ -24,7 +24,7 @@ namespace ScrumPoker.UI
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSignalR();
+            services.AddSignalR(o => o.MaximumReceiveMessageSize = 100000000);
             services.AddMemoryCache();
 
             services.AddResponseCompression(opts =>

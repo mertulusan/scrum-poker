@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Drawing;
 
 namespace ScrumPoker.Model.Model
 {
@@ -17,5 +18,7 @@ namespace ScrumPoker.Model.Model
         public List<User> Users { get; set; }
 
         public List<JiraTask> VotedTaskList { get; set; }
+
+        public byte[] Screenshot { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using ScrumPoker.Model.Enums;
 using ScrumPoker.Model.Model;
 using System;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -112,6 +113,12 @@ namespace ScrumPoker.UI.Hubs
             Room room = memoryCache.Get<Room>(roomName);
             room.EndDate = room.EndDate.AddMinutes(20);
             memoryCache.Set<Room>(roomName, room, DateTime.Now.AddMinutes(20));
+            await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
+        }
+        public async Task ShareScreen(string roomName, byte[] bitmap)
+        {
+            Room room = memoryCache.Get<Room>(roomName);
+            room.Screenshot = bitmap;
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
     }

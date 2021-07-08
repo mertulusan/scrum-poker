@@ -34,6 +34,11 @@
 
 <TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
 
+@if (new RoleType?[] { RoleType.PO, RoleType.SM }.Contains((RoleType?)room?.Users?.FirstOrDefault(p => p.Name == Username)?.Role))
+{
+    <ScreenShare room="@room" hubConnection="@hubConnection"/>
+}
+
 <ul>
     @foreach (var task in room?.VotedTaskList ?? new List<JiraTask>())
     {
@@ -41,7 +46,10 @@
     }
 </ul>
 
-
+@if (room?.Screenshot != null)
+{
+    <img src="data:image/jpg;base64,@Convert.ToBase64String(room?.Screenshot)" width="1920" height="1080" />
+}
 
 @if (room?.VotingTask?.Status == null)
 {<div class="container">

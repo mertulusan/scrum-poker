@@ -1,0 +1,34 @@
+﻿
+@using System.Timers
+@using Microsoft.AspNetCore.SignalR.Client
+@using ScrumPoker.Model.Model
+@using ScrumPoker.Common
+@implements IDisposable
+
+@code {
+    [Parameter]
+    public Room room { get; set; }
+    [Parameter]
+    public HubConnection hubConnection { get; set; }
+
+    private Timer timer = new(10);
+
+    protected override void OnInitialized()
+    {
+        timer.Elapsed += (sender, eventArgs) => OnTimerCallback();
+        timer.Start();
+    }
+
+    private void OnTimerCallback()
+    {
+        _ = InvokeAsync(() =>
+        {
+            timer.Stop();
+            hubConnection.SendAsync("ShareScreen", room.Name, ScreenShareHelper.TakeScreenshot());
+            StateHasChanged();
+            timer.Start();
+        });
+    }
+
+    public void Dispose() => timer.Dispose();
+}
