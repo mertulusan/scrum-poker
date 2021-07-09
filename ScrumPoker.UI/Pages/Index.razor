@@ -3,54 +3,59 @@
 @inject ILocalStorageService localStorage
 @implements IDisposable
 
-<div class="container w-50">
-    <div class="card">
-        <div class="card-body">
-            <div class="form-group row">
-                <label class="col-sm-3 col-form-label text-right font-weight-bold">Room Name:</label>
-                <div class="col-sm-9">
-                    <div class="input-group">
-                        <input type="text" class="form-control" @bind="room.Name" placeholder="Room Name" />
-                        <div class="input-group-append">
-                            <button @onclick="GeneratePrivateRoom" class="btn btn-success">Private Room</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-sm-3 col-form-label text-right font-weight-bold">User Name:</label>
-                <div class="col-sm-9">
-                    <input type="text" class="form-control" @bind="userName" placeholder="User Name">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-sm-3 col-form-label text-right font-weight-bold">Role:</label>
-                <div class="col-sm-9">
-
-                    @foreach (RoleType item in Enum.GetValues(typeof(RoleType)))
-                    {
-                        <div class="row">
-                            <div class="col mt-2">
-                                <input type="radio" name="Role" id="@item" value="@item" checked=@(item==RoleType.DEV) @onchange=@(() => role = item) />
-                                <label for="@item">@item.GetEnumDescription()</label>
+<EditForm Model="@login" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit">
+    <DataAnnotationsValidator />
+    <div class="container w-50">
+        <div class="card">
+            <div class="card-body">
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label text-right font-weight-bold">Room Name:</label>
+                    <div class="col-sm-9">
+                        <div class="input-group">
+                            <input type="text" class="form-control" @bind="login.RoomName" placeholder="Room Name" />
+                            <div class="input-group-append">
+                                <button @onclick="GeneratePrivateRoom" class="btn btn-success">Private Room</button>
                             </div>
                         </div>
-                    }
+                        <ValidationMessage For="@(() => login.RoomName)" />
+                    </div>
                 </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-12 d-flex justify-content-center">
-                    <button @onclick="JoinRoom" class="btn btn-primary" disabled="@(!IsConnected)">Join Room</button>
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label text-right font-weight-bold">User Name:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" @bind="login.UserName" placeholder="User Name">
+                        <ValidationMessage For="@(() => login.UserName)" />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label text-right font-weight-bold">Role:</label>
+                    <div class="col-sm-9">
+                        @foreach (RoleType item in Enum.GetValues(typeof(RoleType)))
+                        {
+                            <div class="row">
+                                <div class="col mt-2">
+                                    <input type="radio" name="Role" id="@item" value="@item" checked=@(item==RoleType.DEV) @onchange=@(() => role = item) />
+                                    <label for="@item">@item.GetEnumDescription()</label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-12 d-flex justify-content-center">
+                        <button type="submit" class="btn btn-primary" disabled="@(!IsConnected)">Join Room</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</EditForm>
 
 @code {
+    private Login login = new Login();
     private Room room = new Room
     {
-        Users = new List<User>(),
+        Users = new List<User>() { },
         VotedTaskList = new List<JiraTask>()
     };
 
@@ -61,51 +66,55 @@
 
     private void GeneratePrivateRoom()
     {
-        room.Name = Guid.NewGuid().ToString("N");
+        login.RoomName = Guid.NewGuid().ToString("N");
     }
 
     protected override async Task OnInitializedAsync()
     {
         hubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri("/roomhub"))
-            .Build();
-
-        hubConnection.On<Room>("ReceiveMessage", (data) =>
-        {
-            room = data;
-            StateHasChanged();
-        });
-
+        .WithUrl(NavigationManager.ToAbsoluteUri("/roomhub"))
+        .Build();
         await hubConnection.StartAsync();
+    }
+
+    protected async void HandleValidSubmit()
+    {
+        await JoinRoom();
+    }
+
+    protected void HandleInvalidSubmit()
+    {
+
     }
 
     async Task JoinRoom()
     {
+        room.Name = login.RoomName;
+
         user = new User()
         {
-            Name = userName,
+            Name = login.UserName,
             Role = role,
             IsActive = true
         };
 
         SetLocalStorage();
         await hubConnection.SendAsync("JoinRoomAsync", room, user);
-        NavigationManager.NavigateTo($"/lobby/{room.Name}/{userName}");
+        NavigationManager.NavigateTo($"/lobby/{room.Name}/{user.Name}");
     }
 
     public bool IsConnected =>
         hubConnection.State == HubConnectionState.Connected;
 
 
-    public void Dispose()
-    {
+    public void Dispose() =>
         _ = hubConnection.DisposeAsync();
-    }
 
     async void SetLocalStorage()
     {
         await localStorage.SetItemAsync("roomName", room.Name);
-        await localStorage.SetItemAsync("userName", userName);
+        await localStorage.SetItemAsync("userName", user.Name);
         await localStorage.SetItemAsync<int>("userRole", (int)user.Role);
     }
+
 }
