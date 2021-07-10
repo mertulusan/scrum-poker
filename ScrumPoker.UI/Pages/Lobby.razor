@@ -1,219 +1,217 @@
 ﻿@page "/lobby/{roomName}/{userName}"
-@using Microsoft.AspNetCore.SignalR.Client
-@using ScrumPoker.Model.Model
-@using ScrumPoker.Model.Enums
-@using ScrumPoker.Common
-@using ScrumPoker.UI.Components
 @inject NavigationManager NavigationManager
-@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject ILocalStorageService localStorage
 
-
-<style type="text/css">
-    .user-list {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .user-card {
-        border-radius: 5px;
-        height: 140px;
-        max-width: 160px;
-        width: 45vw;
-        font-size: 18px;
-        font-weight: 500;
-        letter-spacing: 0;
-        text-align: center;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        position: relative;
-        margin: 15px;
-    }
-</style>
-
-<div class="row">
-    <div class="col">
+<div class="task-panel">
+    @*   Left Panel   *@
+    <div class="task-panel-header">
+        <small>Room</small>
+        <h2> @RoomName</h2>
         <TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
     </div>
-</div>
 
-@if (room?.VotingTask?.Status == null)
-{
-    <div class="container">
-        <div class="row mb-5">
-            <div class="col">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <h3 class="card-title">Room: @RoomName</h3>
-                        <div class="row">
-                            <div class="col">
-                                <button type="button" class="btn btn-success btn-lg" @onclick="StartVoting">Start Voting</button>
-                            </div>
-                        </div>
-
-                        @if (developers?.Count > 0)
-                        {
-                            @for (int i = 0; i < developers.Count; i += 5)
-                            {
-                                <div class="row d-flex justify-content-center">
-                                    @foreach (var developer in developers.Skip(i).Take(5))
-                                    {
-                                        <div class="user-list">
-                                            <div class="user-card border">
-                                                <h5 class="card-title">@developer.Name</h5>
-                                                <span class="badge rounded-pill @(developer.IsActive ? "bg-success" : "bg-danger") text-white">@(developer.IsActive ? "Online" : "Offline")</span>
-                                                @if (isAdmin())
-                                                {
-                                                    <button @onclick="@(p=>KickUser(developer.Name))" style="margin-left: auto;margin-bottom: auto; margin-top: 0; margin-right: 0; padding:15px 15px 15px 15px;">x</button>
-                                                }
-
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            }
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        @if (room?.VotedTaskList?.Count > 0)
+    <div class="row">
+        @if (room != null)
         {
             <div class="card">
-                <div class="card-header">
-                    Task History
+                <div class="card-body">
+                    <div class="tabs-container">
+                        <ul class="nav nav-tabs">
+                            <li>
+                                <a class="nav-link active show" data-toggle="tab" href="#tab-3">
+                                    <i class="fa fa-users" style="margin:5px"></i>
+                                    <span class="badge badge-warning">
+                                        @room?.Users?.Count
+
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="nav-link" data-toggle="tab" href="#tab-4">
+                                    <i class="fa fa-th-list" style="margin:5px"></i>
+                                    <span class="badge badge-success"> @room?.VotedTaskList?.Count</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div id="tab-3" class="tab-pane active show">
+                                @if (room.Users.Any())
+                                {
+                                    <UserListComponent users="@room.Users"></UserListComponent>
+                                }
+                            </div>
+                            <div id="tab-4" class="tab-pane">
+                                @if (room.VotedTaskList.Any())
+                                {
+                                    <TaskListComponent jiraTasks="@room.VotedTaskList"></TaskListComponent>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-                <ul class="list-group list-group-flush">
-                    @foreach (var task in room?.VotedTaskList ?? new List<JiraTask>())
-                    {
-                        <li class="list-group-item">@task.Name - @ScrumPoker.Model.Extensions.GetEnumDescription(task.ComfirmedPoint)</li>
-                    }
-                </ul>
             </div>
         }
     </div>
-}
-else if (room?.VotingTask?.Status == JiraTaskStatus.Completed)
-{
-    <div class="container">
-        <div class="row mb-5">
-            <div class="col">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <h3 class="card-title">Room: @RoomName</h3>
-                        <h5 class="card-subtitle">Avarage: @room.VotingTask.Average.ToString("###.##")</h5>
+</div>
 
-                        @if (new[] { RoleType.PO, RoleType.SM }.Contains((RoleType)room?.Users?.FirstOrDefault(p => p.Name == Username)?.Role))
-                        {
-                            <button type="button" class="btn btn-primary mt-3" data-toggle="modal" data-target="#exampleModal" @onclick=@(() => comfirmedTaskPoint = VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList()))>
-                                Final Decision
-                            </button>
-                        }
 
-                        @if (developers?.Count > 0)
+<div class="content-panel animated fadeInRight">
+    @if (room?.VotingTask?.Status == null)
+    {
+        <div class="card">
+            <div class="card-body justify-content-center">
+                <button type="button" class="btn btn-success btn-md" @onclick="StartVoting">Start Voting</button>
+            </div>
+        </div>
+
+        @if (developers?.Count > 0)
+        {
+            @for (int i = 0; i < developers.Count; i += 5)
+            {
+                <div class="row d-flex justify-content-center ">
+                    <div class="user-list">
+                        @foreach (var developer in developers.Skip(i).Take(5))
                         {
-                            @for (int i = 0; i < developers.Count; i += 5)
-                            {
-                                <div class="row d-flex justify-content-center">
-                                    @foreach (var developer in developers.Skip(i).Take(5))
+                            <div class="user-card">
+                                <div class="user-card-title">
+                                    @if (isAdmin())
                                     {
-                                        <div class="user-list">
-                                            <div class="user-card border">
-                                                <h5 class="card-title">@developer.Name</h5>
-                                                <span class="badge rounded-pill">@ScrumPoker.Model.Extensions.GetEnumDescription(@developer.Point)</span>
-                                            </div>
-                                        </div>
+                                        <a class="float-right" @onclick="@(p=>KickUser(developer.Name))"><i class="fa fa-remove"></i></a>
                                     }
                                 </div>
-                            }
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Final Decision</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p class="text-muted">The card point selected here will be the final decision for the task.</p>
-
-                    <div class="form-group">
-                        <label>Task</label>
-                        <input type="text" class="form-control" @bind="votedTaskName" placeholder="Task Name">
-                    </div>
-                    <div class="form-group">
-                        <label>Point</label>
-                        <select class="form-control" @bind=@comfirmedTaskPoint>
-                            @foreach (var card in Enum.GetValues(typeof(CardPoints)).Cast<CardPoints>().ToList())
-                            {
-                                <option value=@card>@ScrumPoker.Model.Extensions.GetEnumDescription(card)</option>
-                            }
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success" @onclick="SaveVoting" data-dismiss="modal">Save Voting</button>
-                </div>
-            </div>
-        </div>
-    </div>
-}
-else if (RoleType.DEV != developers?.FirstOrDefault(x => x.Name == Username)?.Role || room?.VotingTask?.Status == JiraTaskStatus.Voting && developers?.FirstOrDefault(x => x.Name == Username)?.Point != null)
-{
-    <div class="container">
-        <div class="row mb-5">
-            <div class="col">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <h3 class="card-title">Room: @RoomName</h3>
-
-                        @if (new[] { RoleType.PO, RoleType.SM }.Contains((RoleType)room?.Users?.FirstOrDefault(p => p.Name == Username)?.Role))
-                        {
-                            <div class="row">
-                                <div class="col">
-                                    <button type="button" class="btn btn-success btn-lg" @onclick="StopVoting">Stop Voting</button>
+                                <div class="user-card-content">
+                                    <h2>@developer.Name</h2>
+                                    <span class="badge  @(developer.IsActive ? "badge-success" : "badge-danger") text-white">@(developer.IsActive ? "Online" : "Offline")</span>
                                 </div>
                             </div>
                         }
-
-                        @if (developers?.Count > 0)
-                        {
-                            @for (int i = 0; i < developers.Count; i += 5)
-                            {
-                                <div class="row d-flex justify-content-center">
-                                    @foreach (var developer in developers.Skip(i).Take(5))
-                                    {
-                                        <div class="user-list">
-                                            <div class="user-card border">
-                                                <h5 class="card-title">@developer.Name</h5>
-                                                <span class="badge @(developer.IsActive && developer.Point != null ? "badge-success" : "badge-warning")">@(developer.IsActive ? (developer.Point != null ? "voted" : "voting") : "offline")</span>
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            }
-                        }
                     </div>
                 </div>
+            }
+        }
+    }
+    else if (room?.VotingTask?.Status == JiraTaskStatus.Completed)
+    {
+        <div class="card">
+            <div class="card-body justify-content-center">
+                <h5 class="card-subtitle">Avarage: @room.VotingTask.Average.ToString("###.##")</h5>
+
+                @if (new[] { RoleType.PO, RoleType.SM }.Contains((RoleType)room?.Users?.FirstOrDefault(p => p.Name == Username)?.Role))
+                {
+                    <button type="button" class="btn btn-primary mt-3" data-toggle="modal" data-target="#exampleModal" @onclick=@(() => comfirmedTaskPoint = VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList()))>
+                        Final Decision
+                    </button>
+
+                }
+            </div>
+        </div>
+
+        @if (developers?.Count > 0)
+        {
+            <div class="row d-flex justify-content-center">
+                <div class="user-list">
+                    @for (int i = 0; i < developers.Count; i += 5)
+                    {
+                        @foreach (var developer in developers.Skip(i).Take(5))
+                        {
+                            <div class="user-card">
+                                <div class="user-card-title">
+                                    @if (isAdmin())
+                                    {
+                                        <a class="float-right" @onclick="@(p=>KickUser(developer.Name))"><i class="fa fa-remove"></i></a>
+                                    }
+                                </div>
+                                <div class="user-card-content">
+                                    <h2>@developer.Name</h2>
+                                    <span class="badge badge-primary">@ScrumPoker.Model.Extensions.GetEnumDescription(@developer.Point)</span>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+    }
+    else if (RoleType.DEV != developers?.FirstOrDefault(x => x.Name == Username)?.Role || room?.VotingTask?.Status == JiraTaskStatus.Voting && developers?.FirstOrDefault(x => x.Name == Username)?.Point != null)
+    {
+
+        @if (new[] { RoleType.PO, RoleType.SM }.Contains((RoleType)room?.Users?.FirstOrDefault(p => p.Name == Username)?.Role))
+        {
+            <div class="card">
+                <div class="card-body justify-content-center">
+                    <button type="button" class="btn btn-warning btn-md" @onclick="StopVoting">Stop Voting</button>
+                </div>
+            </div>
+        }
+
+        @if (developers?.Count > 0)
+        {
+            <div class="row d-flex justify-content-center">
+                <div class="user-list">
+                    @for (int i = 0; i < developers.Count; i += 5)
+                    {
+
+                        @foreach (var developer in developers.Skip(i).Take(5))
+                        {
+                            <div class="user-card">
+                                <div class="user-card-title">
+                                    @if (isAdmin())
+                                    {
+                                        <a class="float-right" @onclick="@(p=>KickUser(developer.Name))"><i class="fa fa-remove"></i></a>
+                                    }
+                                </div>
+                                <div class="user-card-content">
+                                    <h2>@developer.Name</h2>
+                                    <span class="badge @(developer.IsActive && developer.Point != null ? "badge-success" : "badge-warning")">@(developer.IsActive ? (developer.Point != null ? "voted" : "voting") : "offline")</span>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <Voting votinghubConnection=@hubConnection votingRoom=@room user=@developers?.FirstOrDefault(x => x.Name == Username) />
+    }
+
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Final Decision</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">The card point selected here will be the final decision for the task.</p>
+
+                <div class="form-group">
+                    <label>Task</label>
+                    <input type="text" class="form-control" @bind="votedTaskName" placeholder="Task Name">
+                </div>
+                <div class="form-group">
+                    <label>Point</label>
+                    <select class="form-control" @bind=@comfirmedTaskPoint>
+                        @foreach (var card in Enum.GetValues(typeof(CardPoints)).Cast<CardPoints>().ToList())
+                        {
+                            <option value=@card>@ScrumPoker.Model.Extensions.GetEnumDescription(card)</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" @onclick="SaveVoting" data-dismiss="modal">Save Voting</button>
             </div>
         </div>
     </div>
-}
-else
-{
-    <Voting votinghubConnection=@hubConnection votingRoom=@room user=@developers?.FirstOrDefault(x => x.Name == Username) />
-}
+</div>
+
 
 @code {
 
