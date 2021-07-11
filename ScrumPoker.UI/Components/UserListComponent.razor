@@ -14,7 +14,20 @@
                 <tr>
                     <td><i class=" @(user.IsActive ? "fa fa-check" : "fa fa-times" ) " /> </td>
                     <td>@user.Name </td>
-                    <td><span class="badge bg-info">@user.Role.GetEnumDescription()</span></td>
+                    <td>
+                        @if (user.Role == RoleType.DEV)
+                        {
+                            <span class="badge badge-warning">@user.Role.GetEnumDescription()</span>
+                        }
+                        else if (user.Role == RoleType.SM || user.Role == RoleType.SM)
+                        {
+                            <span class="badge badge-info">@user.Role.GetEnumDescription()</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-light">@user.Role.GetEnumDescription()</span>
+                        }
+                    </td>
                 </tr>
             }
         </tbody>
