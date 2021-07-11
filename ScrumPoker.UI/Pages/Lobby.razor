@@ -83,14 +83,34 @@
     {
         <div class="card">
             <div class="card-body justify-content-center">
-                <h3>Avarage: @room.VotingTask.Average.ToString("###.##")</h3>
-
-                @if (new[] { RoleType.PO, RoleType.SM }.Contains((RoleType)room?.Users?.FirstOrDefault(p => p.Name == Username)?.Role))
-                {
-                    <button type="button" class="btn btn-primary mt-3" data-toggle="modal" data-target="#exampleModal" @onclick=@(() => comfirmedTaskPoint = VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList()))>
-                        Final Decision
+                <h3 style="display:inline-block;">Avarage: @room.VotingTask.Average.ToString("###.##")</h3>
+                <div class="btn-group float-right" role="group">
+                    <button type="button" class="btn btn-success" @onclick="StartVoting">Start Voting</button>
+                    <button type="button" class="btn btn-primary" @onclick=@(() => comfirmedTaskPoint = VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList()))>
+                        Save Task
                     </button>
+                </div>
 
+                @if (comfirmedTaskPoint != null)
+                {
+                    <hr />
+                    <div class="form-group row">
+                        <div class="col-sm-4">
+                            <label class="text-muted">The card point selected here will be the final decision for the task.</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" @bind="votedTaskName" placeholder="Task Name">
+                                <div class="input-group-append">
+                                    <select class="form-control float-right" @bind=@comfirmedTaskPoint>
+                                        @foreach (var card in Enum.GetValues(typeof(CardPoints)).Cast<CardPoints>().ToList())
+                                        {
+                                            <option value=@card>@ScrumPoker.Model.Extensions.GetEnumDescription(card)</option>
+                                        }
+                                    </select>
+                                    <button type="button" class="btn btn-success form-control  float-right" @onclick="SaveVoting" data-dismiss="modal">Save Voting</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 }
             </div>
         </div>
@@ -165,39 +185,6 @@
         <Voting votinghubConnection=@hubConnection votingRoom=@room user=@developers?.FirstOrDefault(x => x.Name == Username) />
     }
 
-</div>
-
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Final Decision</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p class="text-muted">The card point selected here will be the final decision for the task.</p>
-
-                <div class="form-group">
-                    <label>Task</label>
-                    <input type="text" class="form-control" @bind="votedTaskName" placeholder="Task Name">
-                </div>
-                <div class="form-group">
-                    <label>Point</label>
-                    <select class="form-control" @bind=@comfirmedTaskPoint>
-                        @foreach (var card in Enum.GetValues(typeof(CardPoints)).Cast<CardPoints>().ToList())
-                        {
-                            <option value=@card>@ScrumPoker.Model.Extensions.GetEnumDescription(card)</option>
-                        }
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-success" @onclick="SaveVoting" data-dismiss="modal">Save Voting</button>
-            </div>
-        </div>
-    </div>
 </div>
 
 
