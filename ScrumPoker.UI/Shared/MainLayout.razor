@@ -12,7 +12,7 @@
                     <div><input type="checkbox" checked="@isDarkMode" @onchange="DarkModeChanged" class="form-check-input cursor-pointer" />Dark Mode</div>
                 </div>
                 <div>
-                    <strong>Copyright</strong>  SOVOS © 2021
+                    <strong>Copyright</strong> © 2021
                 </div>
             </div>
         </div>
@@ -22,7 +22,7 @@
 
 @code
 {
-    private bool isDarkMode = false;
+    private bool isDarkMode = true;
     private HubConnection hubConnection;
     private string roomName;
     private string userName;

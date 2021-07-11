@@ -12,32 +12,32 @@
 
     <div class="row">
         <Tabs>
-            <Tab>
-                <Header>
-                    <i class="fa fa-users" style="margin:5px"></i>
-                    <span class="badge badge-danger">
-                        @room?.Users?.Count
-                    </span>
-                </Header>
-                <ChildContent>
-                    @if (room != null && room.Users.Any())
-                    {
+            @if (room != null && room.Users.Any())
+            {
+                <Tab>
+                    <Header>
+                        <i class="fa fa-users" style="margin:5px"></i>
+                        <span class="badge badge-danger">
+                            @room?.Users?.Count
+                        </span>
+                    </Header>
+                    <ChildContent>
                         <UserListComponent users="@room.Users"></UserListComponent>
-                    }
-                </ChildContent>
-            </Tab>
-            <Tab>
-                <Header>
-                    <i class="fa fa-th-list" style="margin:5px"></i>
-                    <span class="badge badge-primary"> @room?.VotedTaskList?.Count</span>
-                </Header>
-                <ChildContent>
-                    @if (room != null && room.VotedTaskList.Any())
-                    {
+                    </ChildContent>
+                </Tab>
+            }
+            @if (room != null && room.VotedTaskList.Any())
+            {
+                <Tab>
+                    <Header>
+                        <i class="fa fa-th-list" style="margin:5px"></i>
+                        <span class="badge badge-primary"> @room?.VotedTaskList?.Count</span>
+                    </Header>
+                    <ChildContent>
                         <TaskListComponent jiraTasks="@room.VotedTaskList"></TaskListComponent>
-                    }
-                </ChildContent>
-            </Tab>
+                    </ChildContent>
+                </Tab>
+            }
         </Tabs>
     </div>
 </div>
@@ -85,7 +85,7 @@
             <div class="card-body justify-content-center">
                 <h3 style="display:inline-block;">Avarage: @room.VotingTask.Average.ToString("###.##")</h3>
                 <div class="btn-group float-right" role="group">
-                    <button type="button" class="btn btn-success" @onclick="StartVoting">Start Voting</button>
+                    <button type="button" class="btn btn-success">Restart Voting</button> @*TO DO*@
                     <button type="button" class="btn btn-primary" @onclick=@(() => comfirmedTaskPoint = VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList()))>
                         Save Task
                     </button>
