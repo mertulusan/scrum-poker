@@ -89,7 +89,7 @@ namespace ScrumPoker.UI.Hubs
 
             if (room.VotingTask != null)
             {
-                room.VotingTask.Name = votedTaskName;
+                room.VotingTask.Name = !string.IsNullOrEmpty(votedTaskName) ? votedTaskName : $"Task - {room.VotingTask.Id}";
                 room.VotingTask.ComfirmedPoint = comfirmedPoint;
                 room.VotedTaskList.Add(room.VotingTask);
             }
