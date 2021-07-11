@@ -7,6 +7,7 @@
     <div class="task-panel-header">
         <small>Room</small>
         <h2> @RoomName</h2>
+        <button type="button" class="btn btn-danger float-right"  @onclick="@(p=>LeaveRoom(Username))">Quit</button>
         <TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
     </div>
 
@@ -65,7 +66,7 @@
                                 <div class="user-card-title">
                                     @if (isAdmin())
                                     {
-                                        <a class="float-right" @onclick="@(p=>KickUser(developer.Name))"><i class="fa fa-remove"></i></a>
+                                        <a class="float-right" @onclick="@(p=>LeaveRoom(developer.Name))"><i class="fa fa-remove"></i></a>
                                     }
                                 </div>
                                 <div class="user-card-content">
@@ -127,7 +128,7 @@
                                 <div class="user-card-title">
                                     @if (isAdmin())
                                     {
-                                        <a class="float-right" @onclick="@(p=>KickUser(developer.Name))"><i class="fa fa-remove"></i></a>
+                                        <a class="float-right" @onclick="@(p=>LeaveRoom(developer.Name))"><i class="fa fa-remove"></i></a>
                                     }
                                 </div>
                                 <div class="user-card-content">
@@ -166,7 +167,7 @@
                                 <div class="user-card-title">
                                     @if (isAdmin())
                                     {
-                                        <a class="float-right" @onclick="@(p=>KickUser(developer.Name))"><i class="fa fa-remove"></i></a>
+                                        <a class="float-right" @onclick="@(p=>LeaveRoom(developer.Name))"><i class="fa fa-remove"></i></a>
                                     }
                                 </div>
                                 <div class="user-card-content @(developer.Point==null?"sk-loading":"") ">
@@ -250,10 +251,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        //if (firstRender)
-        //{
         userRole = await localStorage.GetItemAsync<int>("userRole");
-        //}
     }
 
     protected async Task StartVoting()
@@ -266,9 +264,9 @@
         await hubConnection.SendAsync("StartVoting", RoomName, task);
     }
 
-    void KickUser(string kickUserName)
+    void LeaveRoom(string userName)
     {
-        hubConnection.SendAsync("LeaveRoomAsync", room.Name, kickUserName);
+        hubConnection.SendAsync("LeaveRoomAsync", room.Name, userName);
     }
 
     private bool isAdmin()
