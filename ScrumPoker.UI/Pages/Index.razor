@@ -104,6 +104,7 @@
             IsActive = true
         };
 
+        await localStorage.ClearAsync();
         SetLocalStorage();
         await hubConnection.SendAsync("JoinRoomAsync", room, user);
         NavigationManager.NavigateTo($"/lobby/{room.Name}/{user.Name}");
