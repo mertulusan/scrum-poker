@@ -43,7 +43,16 @@ html, body {
     text-align: center;
 }
 
-
+.footer.fixed {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 10px 20px;
+    background: white;
+    border-top: 1px solid #e7eaec;
+}
 
 
 .card {
