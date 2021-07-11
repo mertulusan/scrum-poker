@@ -49,9 +49,6 @@
             </div>
         </div>
     </div>
-
-
-
 </div>
 
 
@@ -95,7 +92,7 @@
     {
         <div class="card">
             <div class="card-body justify-content-center">
-                <h5 class="card-subtitle">Avarage: @room.VotingTask.Average.ToString("###.##")</h5>
+                <h3>Avarage: @room.VotingTask.Average.ToString("###.##")</h3>
 
                 @if (new[] { RoleType.PO, RoleType.SM }.Contains((RoleType)room?.Users?.FirstOrDefault(p => p.Name == Username)?.Role))
                 {
