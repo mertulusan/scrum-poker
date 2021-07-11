@@ -3,21 +3,32 @@
 @inject ILocalStorageService localStorage
 @inject IMemoryCache memoryCache
 
-<div class="page">
-    <div class="main">
-        <div class="row justify-content-center" style="margin-top:100px">
-            <div class="col-10">
-                @Body
+<div class="page @(isDarkMode ? "theme-dark":"")">
+    <div class="content">
+        <div class="container-fluid">
+            @Body
+            <div class="footer fixed">
+                <div class="float-right">
+                    <div><input type="checkbox" checked="@isDarkMode" @onchange="DarkModeChanged" class="form-check-input cursor-pointer" />Dark Mode</div>
+                </div>
+                <div>
+                    <strong>Copyright</strong>  SOVOS © 2021
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+
 @code
 {
+    private bool isDarkMode = false;
     private HubConnection hubConnection;
     private string roomName;
     private string userName;
+
+    private void DarkModeChanged() => isDarkMode = !isDarkMode;
+
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

@@ -1,0 +1,26 @@
+﻿
+<div class="panel-body">
+    <table class="table table-hover margin bottom">
+        <thead>
+            <tr>
+                <th style="width: 1%" class="text-center">ID</th>
+                <th>Name</th>
+                <th>Point</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var task in jiraTasks)
+            {
+                <tr>
+                    <td>@task.Id </td>
+                    <td>@task.Name </td>
+                    <td><span class="badge btn-ghost-info">@((int)task.ComfirmedPoint)</span></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter] public List<JiraTask> jiraTasks { get; set; }
+}

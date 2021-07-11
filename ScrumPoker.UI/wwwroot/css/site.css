@@ -35,134 +35,6 @@ html, body {
         top: 0.5rem;
     }
 
-
-.card {
-    margin-bottom: 20px;
-    box-shadow: 0 2px 2px 0 rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 20%), 0 1px 5px 0 rgb(0 0 0 / 12%) !important;
-}
-
-.task-panel {
-    width: 400px;
-    background: #ebebed;
-    padding: 50px 20px 10px;
-    position: absolute;
-    left: 0;
-    height: calc(100% - 0px);
-}
-
-.task-panel-header {
-    right: 0;
-    left: 0;
-    padding: 20px;
-    top: 0;
-    width: -webkit-fill-available;
-}
-
-    .task-panel-header small {
-        display: block;
-    }
-
-    .task-panel-header > h2 {
-        display: inline-block;
-    }
-
-
-.content-panel {
-    padding-left: 400px !important;
-    padding-top: 100px;
-}
-
-.user-list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-
-.user-card {
-    width: 200px;
-    height: 200px;
-    clear: both;
-    margin-bottom: 25px;
-    margin-top: 0;
-    padding: 0;
-    background-color: #ffffff;
-    color: inherit;
-    box-shadow: 0 2px 2px 0 rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 20%), 0 1px 5px 0 rgb(0 0 0 / 12%);
-    border-radius: 20px;
-}
-
-    .user-card:hover, .user-card.active {
-        border: 1px solid transparent;
-        -webkit-box-shadow: 0 3px 7px 0 #a8a8a8;
-        -moz-box-shadow: 0 3px 7px 0 #a8a8a8;
-        box-shadow: 0 3px 7px 0 #a8a8a8;
-    }
-
-.user-card-title {
-    -moz-border-bottom-colors: none;
-    -moz-border-left-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-top-colors: none;
-    background-color: #ffffff;
-    color: inherit;
-    margin-bottom: 0;
-    padding: 15px 8px;
-    min-height: 48px;
-    position: relative;
-    clear: both;
-    border-radius: inherit;
-}
-
-.user-card-content {
-    padding: 20px;
-    position: relative;
-    background-color: #ffffff;
-    color: inherit;
-    text-align: center;
-    text-wrap: none;
-}
-
-    .user-card-content span {
-        font-size: medium;
-        padding: 7px 14px;
-    }
-
-.poker-card {
-    height: 150px;
-    max-height: 225px;
-    margin: 10px !important;
-}
-
-.selected-card {
-    border: 3px solid #206bc4;
-    color: #206bc4;
-    font-size: 47px;
-    font-weight: bold;
-    letter-spacing: 0;
-    text-align: center;
-    transform: scale(1.08)
-}
-
-.user-select-none {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    cursor: default;
-}
-
-.poker-card .card-text {
-    font-size: 56px;
-}
-
-.card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 20px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
-}
-
-
 .login-header {
     color: #dadfe4;
     font-size: 60px;
@@ -171,36 +43,179 @@ html, body {
     text-align: center;
 }
 
-.footer.fixed {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    padding: 15px 20px;
-    background: white;
-    border-top: 1px solid #e7eaec;
-}
 
-.btn-timer {
-    float: right !important;
-    border: none !important;
-}
 
-.clock-img {
-    background: url(../css/img/stopwatch.png) no-repeat;
-    background-position: center;
-    background-size: cover;
-    display: inline-block;
-    height: 20px;
-    width: 20px;
+
+.card {
+    margin-bottom: 20px;
+    box-shadow: 0 2px 2px 0 rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 20%), 0 1px 5px 0 rgb(0 0 0 / 12%) !important;
 }
 
 
-.clock-span {
-    height: 16px;
-    width: 16px;
-    font-weight: 800;
-    float: right;
-    font-size: large;
+@media not print {
+    .theme-dark {
+        color: #f4f6fa;
+        background-color: #1f2936
+    }
+
+        .theme-dark .card, .theme-dark .task-panel, .theme-dark .card-footer, .theme-dark .card-stacked::after, .theme-dark .dropdown-menu, .theme-dark .footer:not(.footer-transparent), .theme-dark .modal-content, .theme-dark .modal-header {
+            background-color: #232e3c;
+            color: inherit
+        }
+
+        .theme-dark .card {
+            border-color: transparent
+        }
+
+        .theme-dark .card-tabs .nav-tabs .nav-link {
+            background-color: #1f2936;
+            color: inherit
+        }
+
+            .theme-dark .card-tabs .nav-tabs .nav-link.active {
+                background-color: #232e3c;
+                color: inherit
+            }
+
+        .theme-dark .btn-white, .theme-dark .form-file-button {
+            background-image: none
+        }
+
+        .theme-dark .form-check-input:not(:checked), .theme-dark .form-control, .theme-dark .form-file-text, .theme-dark .form-imagecheck-figure:before, .theme-dark .form-select, .theme-dark .form-selectgroup-check, .theme-dark .form-selectgroup-label {
+            background-color: #1f2936;
+            color: #f4f6fa
+        }
+
+        .theme-dark .form-control-plaintext {
+            color: #f4f6fa
+        }
+
+        .theme-dark .input-group-flat .input-group-text {
+            background-color: #1f2936
+        }
+
+        .theme-dark .highlight {
+            background-color: #1f2936
+        }
+
+        .theme-dark .avatar {
+            background-color: #273342
+        }
+
+        .theme-dark .avatar-list-stacked .avatar {
+            box-shadow: 0 0 0 2px #232e3c
+        }
+
+        .theme-dark .accordion-button, .theme-dark .btn-close, .theme-dark .markdown, .theme-dark .markdown > * {
+            color: inherit
+        }
+
+        .theme-dark .apexcharts-text {
+            fill: #f4f6fa
+        }
+
+        .theme-dark .apexcharts-legend-text {
+            color: inherit !important
+        }
+
+        .theme-dark .navbar-brand-autodark {
+            filter: brightness(0) invert(1)
+        }
+
+        .theme-dark .input-group-text, .theme-dark .markdown > table thead th, .theme-dark .table thead th {
+            background: 0 0
+        }
+
+        .theme-dark .form-fieldset, .theme-dark .list-group-item {
+            border-color: #dadcde
+        }
+
+        .theme-dark .list-group-header {
+            background: #1f2936;
+            border-color: #dadcde
+        }
+}
+
+@media not print and (prefers-color-scheme:dark) {
+    .theme-dark-auto {
+        color: #f4f6fa;
+        background-color: #1f2936
+    }
+
+        .theme-dark-auto .card, .theme-dark-auto .card-footer, .theme-dark-auto .card-stacked::after, .theme-dark-auto .dropdown-menu, .theme-dark-auto .footer:not(.footer-transparent), .theme-dark-auto .modal-content, .theme-dark-auto .modal-header {
+            background-color: #232e3c;
+            color: inherit
+        }
+
+        .theme-dark-auto .card {
+            border-color: transparent
+        }
+
+        .theme-dark-auto .card-tabs .nav-tabs .nav-link {
+            background-color: #1f2936;
+            color: inherit
+        }
+
+            .theme-dark-auto .card-tabs .nav-tabs .nav-link.active {
+                background-color: #232e3c;
+                color: inherit
+            }
+
+        .theme-dark-auto .btn-white, .theme-dark-auto .form-file-button {
+            background-image: none
+        }
+
+        .theme-dark-auto .form-check-input:not(:checked), .theme-dark-auto .form-control, .theme-dark-auto .form-file-text, .theme-dark-auto .form-imagecheck-figure:before, .theme-dark-auto .form-select, .theme-dark-auto .form-selectgroup-check, .theme-dark-auto .form-selectgroup-label {
+            background-color: #1f2936;
+            color: #f4f6fa
+        }
+
+        .theme-dark-auto .form-control-plaintext {
+            color: #f4f6fa
+        }
+
+        .theme-dark-auto .input-group-flat .input-group-text {
+            background-color: #1f2936
+        }
+
+        .theme-dark-auto .highlight {
+            background-color: #1f2936
+        }
+
+        .theme-dark-auto .avatar {
+            background-color: #273342
+        }
+
+        .theme-dark-auto .avatar-list-stacked .avatar {
+            box-shadow: 0 0 0 2px #232e3c
+        }
+
+        .theme-dark-auto .accordion-button, .theme-dark-auto .btn-close, .theme-dark-auto .markdown, .theme-dark-auto .markdown > * {
+            color: inherit
+        }
+
+        .theme-dark-auto .apexcharts-text {
+            fill: #f4f6fa
+        }
+
+        .theme-dark-auto .apexcharts-legend-text {
+            color: inherit !important
+        }
+
+        .theme-dark-auto .navbar-brand-autodark {
+            filter: brightness(0) invert(1)
+        }
+
+        .theme-dark-auto .input-group-text, .theme-dark-auto .markdown > table thead th, .theme-dark-auto .table thead th {
+            background: 0 0
+        }
+
+        .theme-dark-auto .form-fieldset, .theme-dark-auto .list-group-item {
+            border-color: #dadcde
+        }
+
+        .theme-dark-auto .list-group-header {
+            background: #1f2936;
+            border-color: #dadcde
+        }
 }

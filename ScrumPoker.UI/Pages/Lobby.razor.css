@@ -1,0 +1,91 @@
+﻿.task-panel {
+    background-color: #e7eaefc7;
+    border-right: 1px solid #e7eaec;
+    position: fixed;
+    top: 0;
+    width: 400px !important;
+    z-index: 1009;
+    bottom: 0;
+    left: 0;
+    border: none;
+    z-index: 900;
+    padding: 20px;  
+}
+
+.task-panel-header {
+    right: 0;
+    left: 0;
+    padding: 20px;
+    top: 0;
+    width: -webkit-fill-available;
+}
+
+    .task-panel-header small {
+        display: block;
+    }
+
+    .task-panel-header > h2 {
+        display: inline-block;
+    }
+
+
+.content-panel {
+    padding-left: 400px !important;
+    padding-top: 100px;
+}
+
+.user-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+
+.user-card {
+    width: 200px;
+    height: 200px;
+    clear: both;
+    margin-bottom: 25px;
+    margin-top: 0;
+    padding: 0;
+    background-color: #ffffff;
+    color: inherit;
+    box-shadow: 0 2px 2px 0 rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 20%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+    border-radius: 20px;
+}
+
+    .user-card:hover, .user-card.active {
+        border: 1px solid transparent;
+        -webkit-box-shadow: 0 3px 7px 0 #a8a8a8;
+        -moz-box-shadow: 0 3px 7px 0 #a8a8a8;
+        box-shadow: 0 3px 7px 0 #a8a8a8;
+    }
+
+.user-card-title {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #ffffff;
+    color: inherit;
+    margin-bottom: 0;
+    padding: 15px 8px;
+    min-height: 48px;
+    position: relative;
+    clear: both;
+    border-radius: inherit;
+}
+
+.user-card-content {
+    padding: 20px;
+    position: relative;
+    background-color: #ffffff;
+    color: inherit;
+    text-align: center;
+    text-wrap: none;
+}
+
+    .user-card-content span {
+        font-size: medium;
+        padding: 7px 14px;
+    }

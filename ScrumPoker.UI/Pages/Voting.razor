@@ -2,84 +2,48 @@
 @inject IJSRuntime JsRuntime
 @inject ILocalStorageService localStorage
 
+<div class="row justify-content-center animated fadeInRight">
+    <div class="col-md-8">
 
-<style type="text/css">
-    .card {
-        height: 225px;
-        max-height: 225px;
-        width: 175px;
-        max-width: 175px;
-    }
-
-    .selected-card {
-        border: 5px solid #f1828d;
-        color: #f1828d;
-        font-size: 47px;
-        font-weight: bold;
-        letter-spacing: 0;
-        text-align: center;
-        transform: scale(1.08)
-    }
-
-    .user-select-none {
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        cursor: default;
-    }
-
-    .card-text {
-        font-size: 56px;
-    }
-
-    .card:hover {
-        transform: scale(1.05);
-        box-shadow: 0 10px 20px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
-    }
-</style>
-
-<h1>Current User: @user.Name (@user.Role.GetEnumDescription())</h1>
-
-<div class="container w-75">
-    @for (int i = 0; i < cards.Count; i += 4)
-    {
-        <div class="row mb-3">
-            @foreach (var card in cards.Skip(i).Take(4))
-            {
-                <div class="col-sm-12 col-md-6 col-lg-3 p-3">
-                    <div class="card @(selectedCard == card ? "selected-card" : string.Empty) mx-auto" @onclick="() => SetSelectedPoint(card)">
-                        <div class="card-body align-items-center d-flex justify-content-center">
-                            @if (card.GetEnumDescription() == "Must be divided")
-                            {
-                                <span class="oi oi-layers card-text" aria-hidden="true"></span>
-                            }
-                            else if (card.GetEnumDescription() == "I don't understand")
-                            {
-                                <span class="oi oi-question-mark card-text" aria-hidden="true"></span>
-                            }
-                            else if (card.GetEnumDescription() == "Break")
-                            {
-                                <span class="oi oi-clock card-text" aria-hidden="true"></span>
-                            }
-                            else
-                            {
-                                <p class="card-text text-center user-select-none">@card.GetEnumDescription()</p>
-                            }
+        @for (int i = 0; i < cards.Count; i += 4)
+        {
+            <div class="row mb-3">
+                @foreach (var card in cards.Skip(i).Take(4))
+                {
+                    <div class="col-md-3">
+                        <div class="card poker-card @(selectedCard == card ? "selected-card" : string.Empty) mx-auto" @onclick="() => SetSelectedPoint(card)">
+                            <div class="card-body align-items-center d-flex justify-content-center">
+                                @if (card.GetEnumDescription() == "Must be divided")
+                                {
+                                    <span class="oi oi-layers card-text" aria-hidden="true"></span>
+                                }
+                                else if (card.GetEnumDescription() == "I don't understand")
+                                {
+                                    <span class="oi oi-question-mark card-text" aria-hidden="true"></span>
+                                }
+                                else if (card.GetEnumDescription() == "Break")
+                                {
+                                    <span class="oi oi-clock card-text" aria-hidden="true"></span>
+                                }
+                                else
+                                {
+                                    <p class="card-text text-center user-select-none">@card.GetEnumDescription()</p>
+                                }
+                            </div>
                         </div>
                     </div>
-                </div>
-            }
-        </div>
-    }
+                }
+            </div>
+        }
 
-    <div class="row">
-        <div class="col text-center">
-            <button type="button" class="btn btn-dark w-25" @onclick="() => Send(user,selectedCard)">Submit</button>
+        <div class="row">
+            <div class="col text-center">
+                <button type="button" class="btn btn-dark w-25" @onclick="() => Send(user,selectedCard)">Submit</button>
+            </div>
         </div>
     </div>
 </div>
+
 
 @code {
     [Parameter]

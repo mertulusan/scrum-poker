@@ -1,11 +1,8 @@
-﻿
-@using System.Timers
-@using Microsoft.AspNetCore.SignalR.Client
-@using ScrumPoker.Model.Model
-@using ScrumPoker.Model.Enums
-@implements IDisposable
+﻿@implements IDisposable
 
-<button class="btn btn-lg @(remainingMinute <= 10? "btn-danger": "btn-success") float-right" @onclick="AddTime"><i class="clock-img"></i><span class="clock-span">  @( remainingMinute > 0 ? remainingMinute : "0")</span></button>
+
+    <button class="btn-timer @(remainingMinute <= 10? "btn-danger": "btn-default")" @onclick="AddTime"><i class="clock-img"></i><span class="clock-span">  @( remainingMinute > 0 ? remainingMinute : "0")</span></button>
+
 
 @code {
     [Parameter]
