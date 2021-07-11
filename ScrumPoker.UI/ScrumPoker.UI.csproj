@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\css\bootstrap\**" />
+    <Content Remove="wwwroot\css\bootstrap\**" />
+    <EmbeddedResource Remove="wwwroot\css\bootstrap\**" />
+    <None Remove="wwwroot\css\bootstrap\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="C:\Users\sinem.canoglu\.nuget\packages\bootstrap\5.0.2\contentFiles\any\any\wwwroot\css\bootstrap-grid.css" />
     <Content Remove="C:\Users\sinem.canoglu\.nuget\packages\bootstrap\5.0.2\contentFiles\any\any\wwwroot\css\bootstrap-grid.css.map" />
     <Content Remove="C:\Users\sinem.canoglu\.nuget\packages\bootstrap\5.0.2\contentFiles\any\any\wwwroot\css\bootstrap-grid.min.css" />
@@ -63,10 +70,6 @@
   <ItemGroup>
     <ProjectReference Include="..\ScrumPoker.Common\ScrumPoker.Common.csproj" />
     <ProjectReference Include="..\ScrumPoker.Model\ScrumPoker.Model.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\css\bootstrap\" />
   </ItemGroup>
 
 </Project>
