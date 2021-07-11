@@ -1,4 +1,5 @@
-﻿
+﻿@using BlazorDownloadFile
+
 <div class="panel-body">
     <table class="table table-hover margin bottom">
         <thead>
@@ -9,7 +10,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var task in jiraTasks)
+            @foreach (var task in room.VotedTaskList)
             {
                 <tr>
                     <td>@task.Id </td>
@@ -19,8 +20,20 @@
             }
         </tbody>
     </table>
+    <button type="button" class="btn btn-success btn-md float-right" @onclick="DownloadTaskList">Excel</button>
 </div>
 
 @code {
-    [Parameter] public List<JiraTask> jiraTasks { get; set; }
+    [Parameter] public Room room { get; set; }
+    [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
+
+    private async void DownloadTaskList()
+    {
+        if (room.VotedTaskList.Count <= 0)
+            return;
+
+        var excelReport = new ExcelHelper().ExportToExcelByOpenXML(room.VotedTaskList);
+
+        await BlazorDownloadFileService.DownloadFile("TaskList.xlsx", excelReport, System.Threading.CancellationToken.None, "application/octet-stream");
+    }
 }

@@ -34,7 +34,7 @@
                 <ChildContent>
                     @if (room != null && room.VotedTaskList.Any())
                     {
-                        <TaskListComponent jiraTasks="@room.VotedTaskList"></TaskListComponent>
+                        <TaskListComponent room="@room"></TaskListComponent>
                     }
                 </ChildContent>
             </Tab>
@@ -197,7 +197,6 @@
 
 
 @code {
-
     [Parameter] public string RoomName { get; set; }
     [Parameter] public string Username { get; set; }
 
