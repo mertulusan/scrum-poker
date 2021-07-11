@@ -11,47 +11,46 @@
     </div>
 
     <div class="row">
-        @if (room != null)
-        {
-            <div class="card">
-                <div class="card-body">
-                    <div class="tabs-container">
-                        <ul class="nav nav-tabs">
-                            <li>
-                                <a class="nav-link active show" data-toggle="tab" href="#tab-3">
-                                    <i class="fa fa-users" style="margin:5px"></i>
-                                    <span class="badge badge-warning">
-                                        @room?.Users?.Count
 
-                                    </span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="nav-link" data-toggle="tab" href="#tab-4">
-                                    <i class="fa fa-th-list" style="margin:5px"></i>
-                                    <span class="badge badge-success"> @room?.VotedTaskList?.Count</span>
-                                </a>
-                            </li>
-                        </ul>
-                        <div class="tab-content">
-                            <div id="tab-3" class="tab-pane active show">
-                                @if (room.Users.Any())
-                                {
-                                    <UserListComponent users="@room.Users"></UserListComponent>
-                                }
-                            </div>
-                            <div id="tab-4" class="tab-pane">
-                                @if (room.VotedTaskList.Any())
-                                {
-                                    <TaskListComponent jiraTasks="@room.VotedTaskList"></TaskListComponent>
-                                }
-                            </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="tabs-container">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li>
+                            <a class="nav-link active show" data-toggle="tab" href="#tab-3">
+                                <i class="fa fa-users" style="margin:5px"></i>
+                                <span class="badge badge-warning">
+                                    @room?.Users?.Count
+
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" data-toggle="tab" href="#tab-4">
+                                <i class="fa fa-th-list" style="margin:5px"></i>
+                                <span class="badge badge-success"> @room?.VotedTaskList?.Count</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="tab-3" class="tab-pane active show">
+                            @if (room!=null && room.Users.Any())
+                            {
+                                <UserListComponent users="@room.Users"></UserListComponent>
+                            }
+                        </div>
+                        <div id="tab-4" class="tab-pane">
+                            @if (room != null && room.VotedTaskList.Any())
+                            {
+                                <TaskListComponent jiraTasks="@room.VotedTaskList"></TaskListComponent>
+                            }
                         </div>
                     </div>
-
                 </div>
+
             </div>
-        }
+        </div>
     </div>
 </div>
 
