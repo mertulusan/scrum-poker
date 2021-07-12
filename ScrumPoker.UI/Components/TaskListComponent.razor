@@ -20,20 +20,9 @@
             }
         </tbody>
     </table>
-    <button type="button" class="btn btn-success btn-md float-right" @onclick="DownloadTaskList">Excel</button>
+    <ExcelComponent room="@room" />
 </div>
 
 @code {
     [Parameter] public Room room { get; set; }
-    [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
-
-    private async void DownloadTaskList()
-    {
-        if (room.VotedTaskList.Count <= 0)
-            return;
-
-        var excelReport = new ExcelHelper().ExportToExcelByOpenXML(room.VotedTaskList);
-
-        await BlazorDownloadFileService.DownloadFile("TaskList.xlsx", excelReport, System.Threading.CancellationToken.None, "application/octet-stream");
-    }
 }

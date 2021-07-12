@@ -23,7 +23,7 @@
                         </span>
                     </Header>
                     <ChildContent>
-                        <UserListComponent users="@room.Users"/>
+                        <UserListComponent users="@room.Users" />
                     </ChildContent>
                 </Tab>
             }
@@ -35,7 +35,7 @@
                         <span class="badge badge-primary"> @room?.VotedTaskList?.Count</span>
                     </Header>
                     <ChildContent>
-                        <TaskListComponent room="@room"/>
+                        <TaskListComponent room="@room" />
                     </ChildContent>
                 </Tab>
             }
@@ -48,7 +48,7 @@
     <button type="button" class="btn btn-danger float-right" @onclick="@FinishSession">Finish Session</button>
     @if (!string.IsNullOrEmpty(winners))
     {
-        <FinishVotingComponent winners="@winners" />
+        <FinishVotingComponent room="@room" winners="@winners" />
     }
     else if (room?.VotingTask?.Status == null)
     {
