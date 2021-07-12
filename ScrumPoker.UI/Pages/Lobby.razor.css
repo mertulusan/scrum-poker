@@ -20,13 +20,13 @@
     width: -webkit-fill-available;
 }
 
-.task-panel-header small {
-    display: block;
-}
+    .task-panel-header small {
+        display: block;
+    }
 
-.task-panel-header > h3 {
-    display: inline-block;
-}
+    .task-panel-header > h3 {
+        display: inline-block;
+    }
 
 .content-panel {
     padding-left: 400px !important;
@@ -83,7 +83,11 @@
     text-wrap: none;
 }
 
-.user-card-content span {
-    font-size: medium;
-    padding: 7px 14px;
+    .user-card-content span {
+        font-size: medium;
+        padding: 7px 14px;
+    }
+
+.user-card-point {
+    font-size: xx-large !important;
 }
