@@ -15,23 +15,22 @@
 .task-panel-header {
     right: 0;
     left: 0;
-    padding: 20px;
+    /*padding: 20px;*/
     top: 0;
     width: -webkit-fill-available;
 }
 
-    .task-panel-header small {
-        display: block;
-    }
+.task-panel-header small {
+    display: block;
+}
 
-    .task-panel-header > h2 {
-        display: inline-block;
-    }
-
+.task-panel-header > h3 {
+    display: inline-block;
+}
 
 .content-panel {
     padding-left: 400px !important;
-    padding-top: 50px;
+    padding-top: 15px;
 }
 
 .user-list {
@@ -39,7 +38,6 @@
     flex-wrap: wrap;
     justify-content: center;
 }
-
 
 .user-card {
     width: 200px;
@@ -51,15 +49,15 @@
     background-color: #ffffff;
     color: inherit;
     box-shadow: 0 2px 2px 0 rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 20%), 0 1px 5px 0 rgb(0 0 0 / 12%);
-    border-radius: 7px;
+    border-radius: 4px;
 }
 
-    .user-card:hover, .user-card.active {
-        border: 1px solid transparent;
-        -webkit-box-shadow: 0 3px 7px 0 #a8a8a8;
-        -moz-box-shadow: 0 3px 7px 0 #a8a8a8;
-        box-shadow: 0 3px 7px 0 #a8a8a8;
-    }
+/*.user-card:hover, .user-card.active {
+    border: 1px solid transparent;
+    -webkit-box-shadow: 0 3px 7px 0 #a8a8a8;
+    -moz-box-shadow: 0 3px 7px 0 #a8a8a8;
+    box-shadow: 0 3px 7px 0 #a8a8a8;
+}*/
 
 .user-card-title {
     -moz-border-bottom-colors: none;
@@ -85,7 +83,7 @@
     text-wrap: none;
 }
 
-    .user-card-content span {
-        font-size: medium;
-        padding: 7px 14px;
-    }
+.user-card-content span {
+    font-size: medium;
+    padding: 7px 14px;
+}
