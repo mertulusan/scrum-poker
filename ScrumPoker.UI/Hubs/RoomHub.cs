@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
+using ScrumPoker.Common;
+using ScrumPoker.Exceptions;
 using ScrumPoker.Model.Enums;
 using ScrumPoker.Model.Model;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,7 +25,7 @@ namespace ScrumPoker.UI.Hubs
             Room room = memoryCache.Get<Room>(model.Name);
             if (room == null)
             {
-                model.EndDate = System.DateTime.Now.AddMinutes(20);
+                model.EndDate = DateTime.Now.AddMinutes(20);
 
                 room = memoryCache.Set<Room>(model.Name, model, DateTime.Now.AddMinutes(20));
             }
@@ -91,6 +94,11 @@ namespace ScrumPoker.UI.Hubs
             {
                 room.VotingTask.Name = !string.IsNullOrEmpty(votedTaskName) ? votedTaskName : $"Task - {room.VotingTask.Id}";
                 room.VotingTask.ComfirmedPoint = comfirmedPoint;
+                room.VotingTask.UserVotes = new List<UserVote>();
+                room.Users.ForEach(f => {
+                    if (f.Point != null) 
+                        room.VotingTask.UserVotes.Add(new UserVote { Username = f.Name, Vote = (int)f.Point });                    
+                    });
                 room.VotedTaskList.Add(room.VotingTask);
             }
 
@@ -124,6 +132,21 @@ namespace ScrumPoker.UI.Hubs
             room.Users.Remove(user);
             await Groups.RemoveFromGroupAsync(user.ConnectionId, roomName);
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
+        }
+
+        public async Task FinishSession(string roomName)
+        {
+            Room room = memoryCache.Get<Room>(roomName);
+            string message;
+            try
+            {
+                message = VotePointHelper.GetBestPredictionUsers(room.VotedTaskList);
+            }
+            catch (PredictionException ex)
+            {
+                message = string.Empty;
+            }
+            await Clients.Group(roomName).SendAsync("VoteEnding", message);
         }
     }
 }

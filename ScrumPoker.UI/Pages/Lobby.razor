@@ -7,7 +7,7 @@
     <div class="task-panel-header">
         <small>Room</small>
         <h2> @RoomName</h2>
-        <button type="button" class="btn btn-danger float-right"  @onclick="@(p=>LeaveRoom(Username))">Quit</button>
+        <button type="button" class="btn btn-danger float-right" @onclick="@(p=>LeaveRoom(Username))">Quit</button>
         <TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
     </div>
 
@@ -23,7 +23,7 @@
                         </span>
                     </Header>
                     <ChildContent>
-                        <UserListComponent users="@room.Users"></UserListComponent>
+                        <UserListComponent users="@room.Users"/>
                     </ChildContent>
                 </Tab>
             }
@@ -35,7 +35,7 @@
                         <span class="badge badge-primary"> @room?.VotedTaskList?.Count</span>
                     </Header>
                     <ChildContent>
-                        <TaskListComponent room="@room"></TaskListComponent>
+                        <TaskListComponent room="@room"/>
                     </ChildContent>
                 </Tab>
             }
@@ -45,8 +45,12 @@
 
 
 <div class="content-panel animated fadeInRight">
-
-    @if (room?.VotingTask?.Status == null)
+    <button type="button" class="btn btn-danger float-right" @onclick="@FinishSession">Finish Session</button>
+    @if (!string.IsNullOrEmpty(winners))
+    {
+        <FinishVotingComponent winners="@winners" />
+    }
+    else if (room?.VotingTask?.Status == null)
     {
         <div class="card">
             <div class="card-body justify-content-center">
@@ -205,6 +209,7 @@
 
     private string taskName;
     private CardPoints agreedCard;
+    private string winners;
 
     private HubConnection hubConnection;
     private Room room;
@@ -240,6 +245,12 @@
             _room = data;
             developers = data.Users.Where(x => x.Role == RoleType.DEV).ToList();
 
+            StateHasChanged();
+        });
+
+        hubConnection.On<string>("VoteEnding", (data) =>
+        {
+            winners = data;
             StateHasChanged();
         });
 
@@ -285,5 +296,10 @@
     protected async Task StopVoting()
     {
         await hubConnection.SendAsync("StopVoting", RoomName);
+    }
+
+    protected async Task FinishSession()
+    {
+        await hubConnection.SendAsync("FinishSession", RoomName);
     }
 }
