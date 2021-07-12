@@ -75,7 +75,7 @@
                                 <div class="user-card-title">
                                     @if (isAdmin())
                                     {
-                                        <a class="float-right" @onclick="@(p=>LeaveRoom(developer.Name))"><i class="fa fa-remove"></i></a>
+                                        <a class="float-right text-light mr-1" @onclick="@(p=>LeaveRoom(developer.Name))"><i class="fas fa-times fa-lg"></i></a>
                                     }
                                 </div>
                                 <div class="user-card-content">
@@ -116,7 +116,7 @@
                                             <option value=@card>@ScrumPoker.Model.Extensions.GetEnumDescription(card)</option>
                                         }
                                     </select>
-                                    <button type="button" class="btn btn-success form-control  float-right" @onclick="SaveVoting" data-dismiss="modal">Save Voting</button>
+                                    <button type="button" class="btn btn-success form-control float-right" @onclick="SaveVoting" data-dismiss="modal">Save Voting</button>
                                 </div>
                             </div>
                         </div>
@@ -137,7 +137,7 @@
                                 <div class="user-card-title">
                                     @if (isAdmin())
                                     {
-                                        <a class="float-right" @onclick="@(p=>LeaveRoom(developer.Name))"><i class="fa fa-remove"></i></a>
+                                        <a class="float-right text-light mr-1" @onclick="@(p=>LeaveRoom(developer.Name))"><i class="fas fa-times fa-lg"></i></a>
                                     }
                                 </div>
                                 <div class="user-card-content">
@@ -176,7 +176,7 @@
                                 <div class="user-card-title">
                                     @if (isAdmin())
                                     {
-                                        <a class="float-right" @onclick="@(p=>LeaveRoom(developer.Name))"><i class="fa fa-remove"></i></a>
+                                        <a class="float-right text-light mr-1" @onclick="@(p=>LeaveRoom(developer.Name))"><i class="fas fa-times fa-lg"></i></a>
                                     }
                                 </div>
                                 <div class="user-card-content @(developer.Point==null?"sk-loading":"") ">
