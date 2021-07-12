@@ -35,7 +35,7 @@
                         <span class="badge badge-primary"> @room?.VotedTaskList?.Count</span>
                     </Header>
                     <ChildContent>
-                        <TaskListComponent jiraTasks="@room.VotedTaskList"></TaskListComponent>
+                        <TaskListComponent room="@room"></TaskListComponent>
                     </ChildContent>
                 </Tab>
             }
@@ -198,7 +198,6 @@
 
 
 @code {
-
     [Parameter] public string RoomName { get; set; }
     [Parameter] public string Username { get; set; }
 
