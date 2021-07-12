@@ -5,10 +5,20 @@
 <div class="task-panel">
     @*   Left Panel   *@
     <div class="task-panel-header">
-        <small>Room</small>
-        <h2> @RoomName</h2>
-        <button type="button" class="btn btn-danger float-right" @onclick="@(p=>LeaveRoom(Username))">Quit</button>
-        <TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
+        <div class="row mb-2">
+            <div class="col">
+                <button type="button" class="btn btn-danger btn-sm ml-2 float-right" @onclick="@(p=>LeaveRoom(Username))"><i class="fas fa-sign-out-alt fa-lg"></i>&nbsp;Quit</button>
+                <TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col p-0">
+                <div class="card card-body">
+                    <small>Room</small>
+                    <h3>@RoomName</h3>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="row">
@@ -17,7 +27,7 @@
             {
                 <Tab>
                     <Header>
-                        <i class="fa fa-users" style="margin:5px"></i>
+                        <i class="fas fa-users" style="margin:5px"></i>
                         <span class="badge badge-danger">
                             @room?.Users?.Count
                         </span>
@@ -31,7 +41,7 @@
             {
                 <Tab>
                     <Header>
-                        <i class="fa fa-th-list" style="margin:5px"></i>
+                        <i class="fas fa-list" style="margin:5px"></i>
                         <span class="badge badge-primary"> @room?.VotedTaskList?.Count</span>
                     </Header>
                     <ChildContent>
@@ -70,12 +80,12 @@
                                 <div class="user-card-title">
                                     @if (isAdmin())
                                     {
-                                        <a class="float-right" @onclick="@(p=>LeaveRoom(developer.Name))"><i class="fa fa-remove"></i></a>
+                                        <a class="float-right text-light mr-1" @onclick="@(p=>LeaveRoom(developer.Name))"><i class="fas fa-times fa-lg"></i></a>
                                     }
                                 </div>
                                 <div class="user-card-content">
                                     <h2>@developer.Name</h2>
-                                    <span class="badge  @(developer.IsActive ? "badge-success" : "badge-danger") text-white">@(developer.IsActive ? "Online" : "Offline")</span>
+                                    <span class="badge  @(developer.IsActive ? "badge-success" : "badge-danger") text-white">@(developer.IsActive ? "online" : "offline")</span>
                                 </div>
                             </div>
                         }
@@ -111,7 +121,7 @@
                                             <option value=@card>@ScrumPoker.Model.Extensions.GetEnumDescription(card)</option>
                                         }
                                     </select>
-                                    <button type="button" class="btn btn-success form-control  float-right" @onclick="SaveVoting" data-dismiss="modal">Save Voting</button>
+                                    <button type="button" class="btn btn-success form-control float-right" @onclick="SaveVoting" data-dismiss="modal">Save Voting</button>
                                 </div>
                             </div>
                         </div>
@@ -132,7 +142,7 @@
                                 <div class="user-card-title">
                                     @if (isAdmin())
                                     {
-                                        <a class="float-right" @onclick="@(p=>LeaveRoom(developer.Name))"><i class="fa fa-remove"></i></a>
+                                        <a class="float-right text-light mr-1" @onclick="@(p=>LeaveRoom(developer.Name))"><i class="fas fa-times fa-lg"></i></a>
                                     }
                                 </div>
                                 <div class="user-card-content">
@@ -171,7 +181,7 @@
                                 <div class="user-card-title">
                                     @if (isAdmin())
                                     {
-                                        <a class="float-right" @onclick="@(p=>LeaveRoom(developer.Name))"><i class="fa fa-remove"></i></a>
+                                        <a class="float-right text-light mr-1" @onclick="@(p=>LeaveRoom(developer.Name))"><i class="fas fa-times fa-lg"></i></a>
                                     }
                                 </div>
                                 <div class="user-card-content @(developer.Point==null?"sk-loading":"") ">

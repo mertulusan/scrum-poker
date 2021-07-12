@@ -131,6 +131,13 @@ namespace ScrumPoker.UI.Hubs
             var user = room.Users.FirstOrDefault(p => p.Name.Equals(userName));
             room.Users.Remove(user);
             await Groups.RemoveFromGroupAsync(user.ConnectionId, roomName);
+            await Clients.Group(roomName). SendAsync("ReceiveMessage", room);
+        }
+
+        public async Task CloseRoomAsync(string roomName)
+        {
+            Room room = memoryCache.Get<Room>(roomName);
+            memoryCache.Remove(roomName);
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
 
