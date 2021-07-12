@@ -1,4 +1,5 @@
 ﻿@implements IDisposable
+@inject NavigationManager NavigationManager
 
 <button class="btn-timer @(remainingMinute <= 10? "btn-danger": "btn-default")" @onclick="AddTime">
     <i class="fas fa-clock fa-lg mt-1"></i>&nbsp;
@@ -32,6 +33,12 @@
         {
             var leftTime = room.EndDate.Subtract(DateTime.Now).TotalMinutes;
             remainingMinute = Convert.ToInt32(leftTime);
+            if (remainingMinute <= 0)
+            {
+                hubConnection.SendAsync("CloseRoomAsync", room.Name);
+                hubConnection.StopAsync();
+                NavigationManager.NavigateTo($"/");
+            }
             StateHasChanged();
         });
     }

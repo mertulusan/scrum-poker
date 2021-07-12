@@ -82,6 +82,7 @@ html, body {
     box-shadow: 0 2px 2px 0 rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 20%), 0 1px 5px 0 rgb(0 0 0 / 12%) !important;
 }
 
+
 /*
  *  Usage:
  *
@@ -95,8 +96,21 @@ html, body {
  *
  */
 
+
 .sk-loading {
     position: relative;
+}
+
+.sk-spinner {
+    display: none;
+}
+
+.sk-loading > .sk-spinner {
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 2000;
 }
 
 .sk-spinner-wave.sk-spinner {
@@ -178,17 +192,18 @@ html, body {
         .theme-dark .footer:not(.footer-transparent),
         .theme-dark .modal-content,
         .theme-dark .modal-header {
-            background-color: #2f4050;
-            color: inherit
+            background-color: #2f4050 !important;
+            color: inherit !important;
         }
 
         .theme-dark .task-panel {
-            background-color: #2f40504a;
+            background-color: #2f40504a !important;
             color: inherit
         }
 
         .theme-dark .table thead th {
             color: #b1bac5;
+            border-top: none !important;
         }
 
         .theme-dark .nav-tabs .nav-item.show .nav-link,
@@ -226,89 +241,4 @@ html, body {
     background: #1f2936;
     border-color: #dadcde
 }
-
-}
-
-@media not print and (prefers-color-scheme:dark) {
-    .theme-dark-auto {
-        color: #f4f6fa;
-        background-color: #1f2936
-    }
-
-        .theme-dark-auto .card, .theme-dark-auto .card-footer, .theme-dark-auto .card-stacked::after, .theme-dark-auto .dropdown-menu, .theme-dark-auto .footer:not(.footer-transparent), .theme-dark-auto .modal-content, .theme-dark-auto .modal-header {
-            background-color: #2f4050;
-            color: inherit
-        }
-
-        .theme-dark-auto .card {
-            border-color: transparent
-        }
-
-        .theme-dark-auto .card-tabs .nav-tabs .nav-link {
-            background-color: #1f2936;
-            color: inherit
-        }
-
-            .theme-dark-auto .card-tabs .nav-tabs .nav-link.active {
-                background-color: #2f4050;
-                color: inherit
-            }
-
-        .theme-dark-auto .btn-white, .theme-dark-auto .form-file-button {
-            background-image: none
-        }
-
-        .theme-dark-auto .form-check-input:not(:checked), .theme-dark-auto .form-control, .theme-dark-auto .form-file-text, .theme-dark-auto .form-imagecheck-figure:before, .theme-dark-auto .form-select, .theme-dark-auto .form-selectgroup-check, .theme-dark-auto .form-selectgroup-label {
-            background-color: #1f2936;
-            color: #f4f6fa
-        }
-
-        .theme-dark-auto .form-control-plaintext {
-            color: #f4f6fa
-        }
-
-        .theme-dark-auto .input-group-flat .input-group-text {
-            background-color: #1f2936
-        }
-
-        .theme-dark-auto .highlight {
-            background-color: #1f2936
-        }
-
-        .theme-dark-auto .avatar {
-            background-color: #273342
-        }
-
-        .theme-dark-auto .avatar-list-stacked .avatar {
-            box-shadow: 0 0 0 2px #2f4050
-        }
-
-        .theme-dark-auto .accordion-button, .theme-dark-auto .btn-close, .theme-dark-auto .markdown, .theme-dark-auto .markdown > * {
-            color: inherit
-        }
-
-        .theme-dark-auto .apexcharts-text {
-            fill: #f4f6fa
-        }
-
-        .theme-dark-auto .apexcharts-legend-text {
-            color: inherit !important
-        }
-
-        .theme-dark-auto .navbar-brand-autodark {
-            filter: brightness(0) invert(1)
-        }
-
-        .theme-dark-auto .input-group-text, .theme-dark-auto .markdown > table thead th, .theme-dark-auto .table thead th {
-            background: 0 0
-        }
-
-        .theme-dark-auto .form-fieldset, .theme-dark-auto .list-group-item {
-            border-color: #dadcde
-        }
-
-        .theme-dark-auto .list-group-header {
-            background: #1f2936;
-            border-color: #dadcde
-        }
 }
