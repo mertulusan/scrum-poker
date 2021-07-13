@@ -258,7 +258,7 @@
         {
             _room = data;
             developers = data.Users.Where(x => x.Role == RoleType.DEV).ToList();
-
+            if (data.SessionIsEnd) Confetti();
             StateHasChanged();
         });
 
@@ -309,12 +309,11 @@
     protected async Task FinishSession()
     {
         await hubConnection.SendAsync("FinishSession", RoomName);
-        await Confetti();
     }
 
     protected async Task Confetti()
     {
-        for (int p= 0; p < 3; p++)
+        for (int p = 0; p < 3; p++)
         {
             for (int i = 0; i < 3; i++)
             {
