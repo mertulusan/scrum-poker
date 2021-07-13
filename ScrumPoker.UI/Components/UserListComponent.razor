@@ -1,37 +1,39 @@
 ﻿
 <div class="panel-body">
-    <table class="table table-hover margin bottom">
-        <thead>
-            <tr>
-                <th style="width: 1%" class="text-center">Active</th>
-                <th>Name</th>
-                <th>Role</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var user in users)
-            {
+    <div class="table-responsive">
+        <table class="table table-hover margin bottom text-wrap align-middle">
+            <thead>
                 <tr>
-                    <td><i class=" @(user.IsActive ? "fa fa-check" : "fa fa-times" ) " /> </td>
-                    <td>@user.Name </td>
-                    <td>
-                        @if (user.Role == RoleType.DEV)
-                        {
-                            <span class="badge badge-warning">@user.Role.GetEnumDescription()</span>
-                        }
-                        else if (user.Role == RoleType.SM || user.Role == RoleType.SM)
-                        {
-                            <span class="badge badge-info">@user.Role.GetEnumDescription()</span>
-                        }
-                        else
-                        {
-                            <span class="badge badge-light">@user.Role.GetEnumDescription()</span>
-                        }
-                    </td>
+                    <th class="text-center">Active</th>
+                    <th colspan="4">Name</th>
+                    <th colspan="2">Role</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var user in users)
+                {
+                    <tr>
+                        <td><i class=" @(user.IsActive ? "fa fa-check" : "fa fa-times" ) " /> </td>
+                        <td colspan="4">@user.Name </td>
+                        <td colspan="2">
+                            @if (user.Role == RoleType.DEV)
+                            {
+                                <span class="badge badge-warning text-wrap">@user.Role.GetEnumDescription()</span>
+                            }
+                            else if (user.Role == RoleType.SM || user.Role == RoleType.SM)
+                            {
+                                <span class="badge badge-info text-wrap">@user.Role.GetEnumDescription()</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-light text-wrap">@user.Role.GetEnumDescription()</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 @code {
