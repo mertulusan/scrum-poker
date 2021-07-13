@@ -15,7 +15,7 @@
     <div class="col-md-6">
         <h1 class="login-header">SCRUM POKER</h1>
 
-        <EditForm Model="@login" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit">
+        <EditForm Model="@login" OnValidSubmit="@HandleValidSubmit">
             <DataAnnotationsValidator />
             <div class="card">
                 <div class="card-body">
@@ -54,7 +54,17 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-12 d-flex justify-content-center">
-                            <button type="submit" class="btn btn-primary" disabled="@(!IsConnected)">Join Room</button>
+                            @if (!isSubmitting)
+                            {
+                                <button type="button" class="btn btn-primary btn-login disabled">
+                                    <span class='fa-left fas fa-sync-alt spinning'></span>
+                                    Join...
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-primary btn-login" disabled="@(!IsConnected)">Join Room</button>
+                            }
                         </div>
                     </div>
                 </div>
@@ -64,6 +74,8 @@
 </div>
 
 @code {
+
+    private bool isSubmitting = true;
     private Login login = new Login();
     private Room room = new Room
     {
@@ -75,6 +87,7 @@
     private string userName;
     User user;
     RoleType role = RoleType.DEV;
+
 
     private void GeneratePrivateRoom()
     {
@@ -91,6 +104,11 @@
 
     protected async void HandleValidSubmit()
     {
+        isSubmitting = false;
+        StateHasChanged();
+
+        await Task.Delay(500);
+
         Room exist = memoryCache.Get<Room>(login.RoomName);
         if (exist != null && exist.Users.Any(x => x.Name == login.UserName))
         {
@@ -100,12 +118,13 @@
         {
             await JoinRoom();
         }
+
+        await Task.Delay(500);
+
+        isSubmitting = true;
+        StateHasChanged();
     }
 
-    protected void HandleInvalidSubmit()
-    {
-
-    }
 
     async Task JoinRoom()
     {
@@ -130,6 +149,7 @@
 
     public void Dispose() =>
         _ = hubConnection.DisposeAsync();
+
 
     async void SetLocalStorage()
     {
