@@ -8,7 +8,7 @@
     <div class="task-panel-header">
         <div class="row mb-2">
             <div class="col">
-                <button type="button" class="btn btn-danger btn-sm ml-2 float-right" @onclick="@(p=>LeaveRoom(Username))"><i class="fas fa-sign-out-alt fa-lg"></i>&nbsp;Quit</button>
+                <button type="button" class="btn btn-danger btn-sm ml-2 float-right" @onclick="@(p=>Quit())"><i class="fas fa-sign-out-alt fa-lg"></i>&nbsp;Quit</button>
                 <TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
             </div>
         </div>
@@ -85,7 +85,7 @@
                                     }
                                 </div>
                                 <div class="user-card-content">
-                                    <h2>@developer.Name</h2>
+                                    <h2 class="text-break">@developer.Name</h2>
                                     <span class="badge  @(developer.IsActive ? "badge-success" : "badge-danger") text-white">@(developer.IsActive ? "online" : "offline")</span>
                                 </div>
                             </div>
@@ -149,7 +149,7 @@
                                     }
                                 </div>
                                 <div class="user-card-content">
-                                    <h2>@developer.Name</h2>
+                                    <h2 class="text-break">@developer.Name</h2>
                                     @if (developer.Point == CardPoints.Devide)
                                     {
                                         <span class="badge badge-primary"><i class="fas fa-divide fa-2x"></i></span>
@@ -203,7 +203,7 @@
                                     }
                                 </div>
                                 <div class="user-card-content @(developer.Point==null?"sk-loading":"") ">
-                                    <h2>@developer.Name</h2>
+                                    <h2 class="text-break">@developer.Name</h2>
 
                                     <div class="sk-spinner sk-spinner-wave">
                                         <div class="sk-rect1"></div>
@@ -243,19 +243,6 @@
 
     private HubConnection hubConnection;
     private Room room;
-    public Room _room
-    {
-        get
-        {
-            return room;
-        }
-        set
-        {
-            room = value;
-            if (room.Users.FirstOrDefault(p => p.Name.Equals(Username)) == null)
-                NavigationManager.NavigateTo($"/");
-        }
-    }
 
     private List<User> developers;
 
@@ -272,7 +259,10 @@
 
         hubConnection.On<Room>("ReceiveMessage", (data) =>
         {
-            _room = data;
+            room = data;
+            if (data.Users.FirstOrDefault(p => p.Name.Equals(Username)) == null)
+                Quit();
+
             developers = data.Users.Where(x => x.Role == RoleType.DEV).ToList();
             if (data.SessionIsEnd) Confetti();
             StateHasChanged();
@@ -285,7 +275,9 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        userRole = await localStorage.GetItemAsync<int>("userRole");
+            userRole = await localStorage.GetItemAsync<int>("userRole");
+
+            StateHasChanged();
     }
 
     protected async Task StartVoting()
@@ -307,6 +299,15 @@
     {
         hubConnection.SendAsync("LeaveRoomAsync", room.Name, userName);
     }
+
+    void Quit()
+    {
+        hubConnection.SendAsync("LeaveRoomAsync", room.Name, Username);
+        localStorage.ClearAsync();
+        NavigationManager.NavigateTo("/");
+        hubConnection.StopAsync();
+    }
+
 
     private bool isAdmin()
     {
