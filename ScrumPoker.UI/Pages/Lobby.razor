@@ -1,6 +1,7 @@
 ﻿@page "/lobby/{roomName}/{userName}"
 @inject NavigationManager NavigationManager
 @inject ILocalStorageService localStorage
+@using BlafettisLib
 
 <div class="task-panel">
     @*   Left Panel   *@
@@ -33,7 +34,7 @@
                         </span>
                     </Header>
                     <ChildContent>
-                        <UserListComponent users="@room.Users"></UserListComponent>
+                        <UserListComponent users="@room.Users" />
                     </ChildContent>
                 </Tab>
             }
@@ -45,7 +46,7 @@
                         <span class="badge badge-primary"> @room?.VotedTaskList?.Count</span>
                     </Header>
                     <ChildContent>
-                        <TaskListComponent room="@room"></TaskListComponent>
+                        <TaskListComponent room="@room" />
                     </ChildContent>
                 </Tab>
             }
@@ -55,7 +56,13 @@
 
 
 <div class="content-panel animated fadeInRight">
-    @if (room?.VotingTask?.Status == null)
+
+    <button type="button" class="btn btn-danger float-right" @onclick="@FinishSession">Finish Session</button>
+    @if (room?.SessionIsEnd == true)
+    {
+        <FinishVotingComponent room="@room" hubConnection="@hubConnection" username="@Username" />
+    }
+    else if (room?.VotingTask?.Status == null)
     {
         <div class="card">
             <div class="card-body justify-content-center">
@@ -221,10 +228,13 @@
 
 </div>
 
+<Blafettis @ref="blafettis" style="position: absolute; bottom: 100px; right: 50%; left: 50%; z-index:9999999" angle="90" spread="140" startVelocity="67" elementCount="175" duration="1300" stagger="0" dragFriction="0.1" />
 
 @code {
     [Parameter] public string RoomName { get; set; }
     [Parameter] public string Username { get; set; }
+
+    protected Blafettis blafettis;
 
     private int userRole { get; set; }
 
@@ -264,7 +274,7 @@
         {
             _room = data;
             developers = data.Users.Where(x => x.Role == RoleType.DEV).ToList();
-
+            if (data.SessionIsEnd) Confetti();
             StateHasChanged();
         });
 
@@ -315,5 +325,24 @@
     protected async Task StopVoting()
     {
         await hubConnection.SendAsync("StopVoting", RoomName);
+    }
+
+    protected async Task FinishSession()
+    {
+        await hubConnection.SendAsync("FinishSession", RoomName);
+    }
+
+    protected async Task Confetti()
+    {
+        for (int p = 0; p < 3; p++)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                blafettis.RaiseConfetti();
+                await Task.Delay(400);
+            }
+
+            await Task.Delay(1200);
+        }
     }
 }

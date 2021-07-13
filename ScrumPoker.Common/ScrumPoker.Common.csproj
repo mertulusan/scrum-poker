@@ -9,6 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ScrumPoker.Exceptions\ScrumPoker.Exceptions.csproj" />
     <ProjectReference Include="..\ScrumPoker.Model\ScrumPoker.Model.csproj" />
   </ItemGroup>
 
