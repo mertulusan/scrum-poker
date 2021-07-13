@@ -85,7 +85,7 @@
                                     }
                                 </div>
                                 <div class="user-card-content">
-                                    <h2>@developer.Name</h2>
+                                    <h2 class="text-break">@developer.Name</h2>
                                     <span class="badge  @(developer.IsActive ? "badge-success" : "badge-danger") text-white">@(developer.IsActive ? "online" : "offline")</span>
                                 </div>
                             </div>
@@ -148,7 +148,7 @@
                                     }
                                 </div>
                                 <div class="user-card-content">
-                                    <h2>@developer.Name</h2>
+                                    <h2 class="text-break">@developer.Name</h2>
                                     @if (developer.Point == CardPoints.Devide)
                                     {
                                         <span class="badge badge-primary"><i class="fas fa-divide fa-2x"></i></span>
@@ -202,7 +202,7 @@
                                     }
                                 </div>
                                 <div class="user-card-content @(developer.Point==null?"sk-loading":"") ">
-                                    <h2>@developer.Name</h2>
+                                    <h2 class="text-break">@developer.Name</h2>
 
                                     <div class="sk-spinner sk-spinner-wave">
                                         <div class="sk-rect1"></div>
