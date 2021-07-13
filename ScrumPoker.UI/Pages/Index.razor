@@ -1,8 +1,15 @@
 ﻿@page "/"
 @inject NavigationManager NavigationManager
 @inject ILocalStorageService localStorage
+@inject IToastService toastService
 @inject IMemoryCache memoryCache
 @implements IDisposable
+
+<BlazoredToasts Position="ToastPosition.TopRight"
+                ShowProgressBar="true"
+                Timeout="10"
+                IconType="IconType.FontAwesome"
+                WarningIcon="warning" />
 
 <div class="row justify-content-center animated fadeInDown" style="margin-top:100px; padding:10px 20px;">
     <div class="col-md-6">
@@ -10,7 +17,6 @@
 
         <EditForm Model="@login" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit">
             <DataAnnotationsValidator />
-            <div class="alert @StatusClass">@StatusMessage</div>
             <div class="card">
                 <div class="card-body">
                     <div class="form-group row">
@@ -53,7 +59,6 @@
                     </div>
                 </div>
             </div>
-
         </EditForm>
     </div>
 </div>
@@ -70,10 +75,6 @@
     private string userName;
     User user;
     RoleType role = RoleType.DEV;
-
-    private string StatusMessage;
-    private string StatusClass;
-
 
     private void GeneratePrivateRoom()
     {
@@ -93,8 +94,7 @@
         Room exist = memoryCache.Get<Room>(login.RoomName);
         if (exist != null && exist.Users.Any(x => x.Name == login.UserName))
         {
-            StatusClass = "alert-warning";
-            StatusMessage = DateTime.Now + " kullanıcı mevcut";
+            toastService.ShowWarning("you have to change your username");
         }
         else
         {

@@ -1,5 +1,6 @@
 using BlazorDownloadFile;
 using Blazored.LocalStorage;
+using Blazored.Toast;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -30,6 +31,7 @@ namespace ScrumPoker.UI
             services.AddMemoryCache();
             services.AddBlazoredLocalStorage(); 
             services.AddBlazorDownloadFile(ServiceLifetime.Scoped);
+            services.AddBlazoredToast();
             services.AddResponseCompression(opts =>
             {
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
