@@ -113,17 +113,18 @@
                     <hr />
                     <div class="form-group row">
                         <div class="col-sm-6">
-                            <label class="text-muted">Enter the task information and the final decision.</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" @bind="votedTaskName" placeholder="Task Name">
-                                <div class="input-group-append">
+                                <div class="input-group-prepend">
                                     <select class="form-control float-right" @bind=@comfirmedTaskPoint>
                                         @foreach (var card in Enum.GetValues(typeof(CardPoints)).Cast<CardPoints>().ToList())
                                         {
                                             <option value=@card>@ScrumPoker.Model.Extensions.GetEnumDescription(card)</option>
                                         }
                                     </select>
-                                    <button type="button" class="btn btn-success form-control float-right" @onclick="SaveVoting" data-dismiss="modal">Save Voting</button>
+                                </div>
+                                <input type="text" class="form-control" placeholder="Task Name" @bind=@votedTaskName>
+                                <div class="input-group-append">
+                                    <button class="btn btn-success" type="button" @onclick="SaveVoting">Save Voting</button>
                                 </div>
                             </div>
                         </div>
@@ -330,6 +331,11 @@
     {
         await hubConnection.SendAsync("FinishSession", RoomName);
     }
+
+    //protected void BindConfirmedTaskPoint(string card)
+    //{
+    //    comfirmedTaskPoint = (CardPoints)Enum.Parse(typeof(CardPoints), card.ToString(), true);
+    //}
 
     protected async Task Confetti()
     {
