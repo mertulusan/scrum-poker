@@ -1,4 +1,7 @@
-﻿
+﻿@inject NavigationManager NavigationManager
+@inject ILocalStorageService localStorage
+
+
 <div class="modal fade" style="display:contents" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -27,5 +30,8 @@
     void LeaveRoom(string userName)
     {
         hubConnection.SendAsync("LeaveRoomAsync", room.Name, username);
+        localStorage.ClearAsync();
+        NavigationManager.NavigateTo("/");
+        hubConnection.StopAsync();
     }
 }
