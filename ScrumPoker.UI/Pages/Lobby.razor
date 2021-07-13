@@ -254,6 +254,7 @@
     private int nearestPoint;
 
     private bool isDisabled;
+    private bool isFinish;
 
     protected override async Task OnInitializedAsync()
     {
@@ -269,7 +270,10 @@
                 Quit();
 
             developers = data.Users.Where(x => x.Role == RoleType.DEV).ToList();
-            if (data.SessionIsEnd) Confetti();
+
+            if (!isFinish && data.SessionIsEnd) 
+                Confetti();
+
             StateHasChanged();
         });
 
@@ -355,5 +359,6 @@
         }
 
         isDisabled = false;
+        isFinish = true;
     }
 }
