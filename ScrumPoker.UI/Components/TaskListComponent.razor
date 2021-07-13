@@ -20,7 +20,7 @@
                     <tr>
                         <td>@task.Id </td>
                         <td colspan="5">
-                            @if (task.Name.Substring(0, 7).Equals("http://") || task.Name.Substring(0, 8).Equals("https://"))
+                            @if (task.Name.Length > 10 && (task.Name.Substring(0, 7).Equals("http://") || task.Name.Substring(0, 8).Equals("https://")))
                             {
                                 <a href="@task.Name" target="_blank">@task.Name</a>
                             }
