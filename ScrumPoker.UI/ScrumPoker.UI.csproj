@@ -61,6 +61,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="blazor-dom-confetti" Version="0.0.0.5" />
     <PackageReference Include="BlazorDownloadFile" Version="2.1.6" />
     <PackageReference Include="Blazored.LocalStorage" Version="4.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
@@ -70,6 +71,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ScrumPoker.Common\ScrumPoker.Common.csproj" />
+    <ProjectReference Include="..\ScrumPoker.Exceptions\ScrumPoker.Exceptions.csproj" />
     <ProjectReference Include="..\ScrumPoker.Model\ScrumPoker.Model.csproj" />
   </ItemGroup>
 

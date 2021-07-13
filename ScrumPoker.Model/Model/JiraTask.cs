@@ -1,4 +1,5 @@
 ﻿using ScrumPoker.Model.Enums;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace ScrumPoker.Model.Model
@@ -18,5 +19,7 @@ namespace ScrumPoker.Model.Model
         public CardPoints ComfirmedPoint { get; set; }
 
         public JiraTaskStatus Status { get; set; }
+
+        public List<UserVote> UserVotes{ get; set; }
     }
 }

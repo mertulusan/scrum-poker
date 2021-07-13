@@ -17,5 +17,9 @@ namespace ScrumPoker.Model.Model
         public List<User> Users { get; set; }
 
         public List<JiraTask> VotedTaskList { get; set; }
+
+        public string Winner { get; set; }
+
+        public bool SessionIsEnd { get; set; }
     }
 }
