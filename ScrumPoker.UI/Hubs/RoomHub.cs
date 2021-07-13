@@ -144,16 +144,16 @@ namespace ScrumPoker.UI.Hubs
         public async Task FinishSession(string roomName)
         {
             Room room = memoryCache.Get<Room>(roomName);
-            string message;
+            room.SessionIsEnd = true;
             try
             {
-                message = VotePointHelper.GetBestPredictionUsers(room.VotedTaskList);
+                room.Winner = VotePointHelper.GetBestPredictionUsers(room.VotedTaskList);
             }
             catch (PredictionException ex)
             {
-                message = string.Empty;
+                room.Winner = ex.Message;
             }
-            await Clients.Group(roomName).SendAsync("VoteEnding", message);
+            await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace ScrumPoker.Common
         public static string GetBestPredictionUsers(List<JiraTask> taskList)
         {
             if (taskList == null || taskList.Count == 0)
-                throw new PredictionException("Task list cannot be empty.");
+                throw new PredictionException("The most successful estimates could not be calculated because the task list was empty.");
 
             List<UserVote> list = new List<UserVote>();
 
@@ -54,7 +54,7 @@ namespace ScrumPoker.Common
             if(!winners.Any())
                 throw new PredictionException("There are no participants who guessed correctly.");
 
-            return string.Join(", ", winners);
+            return $"Most successful voter(s) : {string.Join(", ", winners)}";
         }
     }
 }

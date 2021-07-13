@@ -6,11 +6,11 @@
                 <h5 class="modal-title" id="exampleModalLongTitle">Scrum voting ended</h5>
             </div>
             <div class="modal-body">
-                @winners
+                @room.Winner
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Finish session</button>
                 <ExcelComponent room="@room" />
+                <button type="button" class="btn btn-danger" data-dismiss="modal" @onclick="@(p=>LeaveRoom(username))">&nbsp;Quit</button>
                 @*<button type="button" class="btn btn-primary">e-Mail</button>*@
             </div>
         </div>
@@ -18,8 +18,14 @@
 </div>
 
 @code {
-    [Parameter] public string winners { get; set; }
     [Parameter] public Room room { get; set; }
 
+    [Parameter] public HubConnection hubConnection { get; set; }
 
+    [Parameter] public string username { get; set; }
+
+    void LeaveRoom(string userName)
+    {
+        hubConnection.SendAsync("LeaveRoomAsync", room.Name, username);
+    }
 }
