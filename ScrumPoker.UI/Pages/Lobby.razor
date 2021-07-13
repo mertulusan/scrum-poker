@@ -93,9 +93,9 @@
     {
         <div class="card">
             <div class="card-body justify-content-center">
-                <h3 style="display:inline-block;">Avarage: @room.VotingTask.Average.ToString("###.##")</h3>
-                <div class="btn-group float-right" role="group">
-                    <button type="button" class="btn btn-success">Restart Voting</button> @*TO DO*@
+                <h1 class="float-right d-inline-block">Avarage: <span class="badge badge-info">@room.VotingTask.Average.ToString("###.##")</span></h1>
+                <div class="btn-group float-left" role="group">
+                    <button type="button" class="btn btn-success" @onclick="RestartVoting">Restart Voting</button>
                     <button type="button" class="btn btn-primary" @onclick=@(() => comfirmedTaskPoint = VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList()))>
                         Save Task
                     </button>
@@ -103,10 +103,11 @@
 
                 @if (comfirmedTaskPoint != null)
                 {
+                    <br />
                     <hr />
                     <div class="form-group row">
-                        <div class="col-sm-4">
-                            <label class="text-muted">The card point selected here will be the final decision for the task.</label>
+                        <div class="col-sm-6">
+                            <label class="text-muted">Enter the task information and the final decision.</label>
                             <div class="input-group">
                                 <input type="text" class="form-control" @bind="votedTaskName" placeholder="Task Name">
                                 <div class="input-group-append">
@@ -142,7 +143,22 @@
                                 </div>
                                 <div class="user-card-content">
                                     <h2>@developer.Name</h2>
-                                    <span class="badge badge-primary">@ScrumPoker.Model.Extensions.GetEnumDescription(@developer.Point)</span>
+                                    @if (developer.Point == CardPoints.Devide)
+                                    {
+                                        <span class="badge badge-primary"><i class="fas fa-divide fa-2x"></i></span>
+                                    }
+                                    else if (developer.Point == CardPoints.DontUnderstand)
+                                    {
+                                        <span class="badge badge-primary"><i class="fas fa-question fa-2x"></i></span>
+                                    }
+                                    else if (developer.Point == CardPoints.CoffeeBreak)
+                                    {
+                                        <span class="badge badge-primary"><i class="fas fa-mug-hot fa-2x"></i></span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-primary user-card-point">@ScrumPoker.Model.Extensions.GetEnumDescription(@developer.Point)</span>
+                                    }
                                 </div>
                             </div>
                         }
@@ -158,7 +174,7 @@
         {
             <div class="card">
                 <div class="card-body justify-content-center">
-                    <button type="button" class="btn btn-danger btn-md float-right" @onclick="StopVoting">Stop Voting</button>
+                    <button type="button" class="btn btn-danger btn-md" @onclick="StopVoting">Stop Voting</button>
                 </div>
             </div>
         }
@@ -270,6 +286,11 @@
         };
 
         await hubConnection.SendAsync("StartVoting", RoomName, task);
+    }
+
+    protected async Task RestartVoting()
+    {
+        await hubConnection.SendAsync("RestartVoting", RoomName);
     }
 
     void LeaveRoom(string userName)
