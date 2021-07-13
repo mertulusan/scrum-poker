@@ -56,8 +56,6 @@
 
 
 <div class="content-panel animated fadeInRight">
-
-    <button type="button" class="btn btn-danger float-right" @onclick="@FinishSession">Finish Session</button>
     @if (room?.SessionIsEnd == true)
     {
         <FinishVotingComponent room="@room" hubConnection="@hubConnection" username="@Username" />
@@ -66,7 +64,8 @@
     {
         <div class="card">
             <div class="card-body justify-content-center">
-                <button type="button" class="btn btn-success btn-md float-right" @onclick="StartVoting">Start Voting</button>
+                <button type="button" class="btn btn-success mr-1" @onclick="StartVoting">Start Voting</button>
+                <button type="button" class="btn btn-danger" @onclick="@FinishSession">Finish Session</button>
             </div>
         </div>
 
