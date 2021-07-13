@@ -25,7 +25,7 @@ namespace ScrumPoker.UI.Hubs
             Room room = memoryCache.Get<Room>(model.Name);
             if (room == null)
             {
-                model.EndDate = DateTime.Now.AddMinutes(1);
+                model.EndDate = DateTime.Now.AddMinutes(20);
 
                 room = memoryCache.Set<Room>(model.Name, model, DateTime.Now.AddMinutes(20));
             }
