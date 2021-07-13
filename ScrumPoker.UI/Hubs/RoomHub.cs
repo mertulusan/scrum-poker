@@ -25,7 +25,7 @@ namespace ScrumPoker.UI.Hubs
             Room room = memoryCache.Get<Room>(model.Name);
             if (room == null)
             {
-                model.EndDate = DateTime.Now.AddMinutes(20);
+                model.EndDate = DateTime.Now.AddMinutes(1);
 
                 room = memoryCache.Set<Room>(model.Name, model, DateTime.Now.AddMinutes(20));
             }
@@ -63,16 +63,12 @@ namespace ScrumPoker.UI.Hubs
         {
             Room room = memoryCache.Get<Room>(roomName);
 
-            //if (room.VotingTask != null)
-            //    room.VotedTaskList.Add(room.VotingTask);
-
             var taskId = !room.VotedTaskList.Any() ? 1 : room.VotedTaskList.Max(p => p.Id) + 1;
             task.Id = taskId;
             task.Name = $"Task {taskId}";
 
             room.VotingTask = task;
 
-            //room.Users.ForEach(f => f.Point = null);
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
 
@@ -105,10 +101,11 @@ namespace ScrumPoker.UI.Hubs
                 room.VotingTask.Name = !string.IsNullOrEmpty(votedTaskName) ? votedTaskName : $"Task - {room.VotingTask.Id}";
                 room.VotingTask.ComfirmedPoint = comfirmedPoint;
                 room.VotingTask.UserVotes = new List<UserVote>();
-                room.Users.ForEach(f => {
-                    if (f.Point != null) 
-                        room.VotingTask.UserVotes.Add(new UserVote { Username = f.Name, Vote = (int)f.Point });                    
-                    });
+                room.Users.ForEach(f =>
+                {
+                    if (f.Point != null)
+                        room.VotingTask.UserVotes.Add(new UserVote { Username = f.Name, Vote = (int)f.Point });
+                });
                 room.VotedTaskList.Add(room.VotingTask);
             }
 
@@ -116,11 +113,6 @@ namespace ScrumPoker.UI.Hubs
             room.Users.ForEach(f => f.Point = null);
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
-
-        //public async Task LeaveRoomAsync(string groupName)
-        //{
-        //    await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
-        //}
 
         public async Task SendMessage(string user, string message)
         {
@@ -141,13 +133,16 @@ namespace ScrumPoker.UI.Hubs
             var user = room.Users.FirstOrDefault(p => p.Name.Equals(userName));
             room.Users.Remove(user);
             await Groups.RemoveFromGroupAsync(user?.ConnectionId, roomName);
-            await Clients.Group(roomName). SendAsync("ReceiveMessage", room);
+            await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
 
         public async Task CloseRoomAsync(string roomName)
         {
             Room room = memoryCache.Get<Room>(roomName);
-            memoryCache.Remove(roomName);
+
+            if (room != null)
+                memoryCache.Remove(roomName);
+            
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
 
