@@ -275,9 +275,9 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-            userRole = await localStorage.GetItemAsync<int>("userRole");
+        userRole = await localStorage.GetItemAsync<int>("userRole");
 
-            StateHasChanged();
+        StateHasChanged();
     }
 
     protected async Task StartVoting()
@@ -292,6 +292,7 @@
 
     protected async Task RestartVoting()
     {
+        comfirmedTaskPoint = null;
         await hubConnection.SendAsync("RestartVoting", RoomName);
     }
 
