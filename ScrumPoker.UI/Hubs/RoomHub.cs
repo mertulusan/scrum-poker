@@ -78,7 +78,7 @@ namespace ScrumPoker.UI.Hubs
         {
             var room = memoryCache.Get<Room>(roomName);
             room.Users.ForEach(x => { x.Point = null; });
-            room.VotingTask = new JiraTask();
+            room.VotingTask = new JiraTask { Status = JiraTaskStatus.Voting };
 
             await Clients.Group(roomName).SendAsync("ReceiveMessage", room);
         }
