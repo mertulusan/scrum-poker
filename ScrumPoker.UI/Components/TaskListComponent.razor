@@ -1,28 +1,43 @@
 ﻿@using BlazorDownloadFile
 
 <div class="panel-body">
-    <table class="table table-hover margin bottom">
-        <caption style="caption-side: top;">
-        </caption>
-        <thead>
-            <tr>
-                <th style="width: 1%" class="text-center">ID</th>
-                <th>Name</th>
-                <th>Point</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var task in room.VotedTaskList)
-            {
+    <br />
+    <div class="table-responsive">
+        <table class="table table-hover margin bottom text-wrap align-middle" style="table-layout:fixed;">
+            <caption style="caption-side: top;">
+                <ExcelComponent room="@room" />
+            </caption>
+            <thead>
                 <tr>
-                    <td>@task.Id </td>
-                    <td>@task.Name </td>
-                    <td><span class="badge badge-primary">@(task.ComfirmedPoint.GetEnumDescription())</span></td>
+                    <th class="text-center">ID</th>
+                    <th colspan="5">Name</th>
+                    <th colspan="2">Point</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-    <ExcelComponent room="@room" />
+            </thead>
+            <tbody>
+                @foreach (var task in room.VotedTaskList)
+                {
+                    <tr>
+                        <td>@task.Id </td>
+                        <td colspan="5">
+                            @if (task.Name.Substring(0, 7).Equals("http://") || task.Name.Substring(0, 8).Equals("https://"))
+                            {
+                                <a href="@task.Name" target="_blank">@task.Name</a>
+                            }
+                            else
+                            {
+                                <span> @task.Name </span>
+                            }
+                        </td>
+                        <td colspan="2">
+                            <span class="badge badge-primary text-wrap">@(task.ComfirmedPoint.GetEnumDescription())</span>
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 @code {

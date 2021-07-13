@@ -3,7 +3,7 @@
     border-right: 1px solid #e7eaec;
     position: fixed;
     top: 0;
-    width: 400px !important;
+    width: 450px !important;
     z-index: 1009;
     bottom: 0;
     left: 0;
@@ -29,7 +29,7 @@
     }
 
 .content-panel {
-    padding-left: 400px !important;
+    padding-left: 450px !important;
     padding-top: 15px;
 }
 
