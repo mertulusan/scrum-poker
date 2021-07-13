@@ -1,21 +1,19 @@
-﻿
-<div class="modal fade" style="display:contents" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Scrum voting ended</h5>
-            </div>
-            <div class="modal-body">
-                @room.Winner
-            </div>
-            <div class="modal-footer">
-                <ExcelComponent room="@room" />
-                <button type="button" class="btn btn-danger" data-dismiss="modal" @onclick="@(p=>LeaveRoom(username))">&nbsp;Quit</button>
-                @*<button type="button" class="btn btn-primary">e-Mail</button>*@
+﻿<div class="modal fade" style="display:contents" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Scrum voting ended</h5>
+                </div>
+                <div class="modal-body">
+                    @room.Winner
+                </div>
+                <div class="modal-footer">
+                    <ExcelComponent room="@room" />
+                    <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" @onclick="@(p=>LeaveRoom(username))"><i class="fas fa-sign-out-alt fa-lg"></i>&nbsp;Quit</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 @code {
     [Parameter] public Room room { get; set; }
