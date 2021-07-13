@@ -105,6 +105,7 @@
     protected async void HandleValidSubmit()
     {
         isSubmitting = false;
+        StateHasChanged();
 
         await Task.Delay(200);
 
@@ -121,6 +122,7 @@
         await Task.Delay(200);
 
         isSubmitting = true;
+        StateHasChanged();
     }
 
 
