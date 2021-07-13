@@ -8,7 +8,7 @@
     <div class="task-panel-header">
         <div class="row mb-2">
             <div class="col">
-                <button type="button" class="btn btn-danger btn-sm ml-2 float-right" @onclick="@(p=>Quit())"><i class="fas fa-sign-out-alt fa-lg"></i>&nbsp;Quit</button>
+                <button type="button" class="btn btn-danger btn-sm ml-2 float-right" @onclick="@(p=>Quit())" disabled="@isDisabled"><i class="fas fa-sign-out-alt fa-lg"></i>&nbsp;Quit</button>
                 <TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
             </div>
         </div>
@@ -99,14 +99,17 @@
     {
         <div class="card">
             <div class="card-body justify-content-center">
-                <h1 class="float-right d-inline-block">Avarage: <span class="badge badge-info">@room.VotingTask.Average.ToString("###.##")</span></h1>
-                <div class="btn-group float-left" role="group">
-                    <button type="button" class="btn btn-success" @onclick="RestartVoting">Restart Voting</button>
-                    <button type="button" class="btn btn-primary" @onclick=@(() => comfirmedTaskPoint = VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList()))>
-                        Save Task
-                    </button>
-                </div>
-
+                <h1 class="float-right d-inline-block">@room.VotingTask.Average.ToString("###.##")</h1>
+                <h2 class="float-right d-inline-block">Avarage: </h2> 
+                @if (RoleType.GUEST != (RoleType)userRole)
+                {
+                    <div class="btn-group float-left" role="group">
+                        <button type="button" class="btn btn-success" @onclick="RestartVoting">Restart Voting</button>
+                        <button type="button" class="btn btn-primary" @onclick=@(() => comfirmedTaskPoint = VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList()))>
+                            Save Task
+                        </button>
+                    </div>
+                }
                 @if (comfirmedTaskPoint != null)
                 {
                     <br />
@@ -177,7 +180,7 @@
     else if (RoleType.DEV != developers?.FirstOrDefault(x => x.Name == Username)?.Role || room?.VotingTask?.Status == JiraTaskStatus.Voting && developers?.FirstOrDefault(x => x.Name == Username)?.Point != null)
     {
 
-        @if (new[] { RoleType.PO, RoleType.SM }.Contains((RoleType)userRole))
+        @if (RoleType.GUEST != (RoleType)userRole)
         {
             <div class="card">
                 <div class="card-body justify-content-center">
@@ -249,6 +252,8 @@
     private string votedTaskName;
     private CardPoints? comfirmedTaskPoint;
     private int nearestPoint;
+
+    private bool isDisabled;
 
     protected override async Task OnInitializedAsync()
     {
@@ -334,13 +339,10 @@
         await hubConnection.SendAsync("FinishSession", RoomName);
     }
 
-    //protected void BindConfirmedTaskPoint(string card)
-    //{
-    //    comfirmedTaskPoint = (CardPoints)Enum.Parse(typeof(CardPoints), card.ToString(), true);
-    //}
-
     protected async Task Confetti()
     {
+        isDisabled = true;
+
         for (int p = 0; p < 3; p++)
         {
             for (int i = 0; i < 3; i++)
@@ -351,5 +353,7 @@
 
             await Task.Delay(1200);
         }
+
+        isDisabled = false;
     }
 }

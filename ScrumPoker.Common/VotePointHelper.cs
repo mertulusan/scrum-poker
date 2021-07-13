@@ -41,6 +41,9 @@ namespace ScrumPoker.Common
                     if ((int)task.ComfirmedPoint == userVote.Vote)
                         list.Add(userVote);
 
+            if (!list.Any())
+                throw new PredictionException("There are no participants who guessed correctly.");
+
             var result = list.GroupBy(g => g.Username).Select(group => new
             {
                 Name = group.Key,
@@ -50,9 +53,6 @@ namespace ScrumPoker.Common
             var max = result.Max(m => m.Count);
 
             var winners = result.Where(p => p.Count == max).Select(s => s.Name);
-
-            if(!winners.Any())
-                throw new PredictionException("There are no participants who guessed correctly.");
 
             return $"Most successful voter(s) : {string.Join(", ", winners)}";
         }

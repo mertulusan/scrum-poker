@@ -9,11 +9,10 @@
                     <h5 class="modal-title" id="exampleModalLongTitle">Scrum voting ended</h5>
                 </div>
                 <div class="modal-body">
-                    @room.Winner
+                    <h3>@room.Winner</h3>
                 </div>
                 <div class="modal-footer">
                     <ExcelComponent room="@room" />
-                    <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" @onclick="@(p=>LeaveRoom(username))"><i class="fas fa-sign-out-alt fa-lg"></i>&nbsp;Quit</button>
                 </div>
             </div>
         </div>

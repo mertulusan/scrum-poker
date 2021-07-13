@@ -105,9 +105,8 @@
     protected async void HandleValidSubmit()
     {
         isSubmitting = false;
-        StateHasChanged();
 
-        await Task.Delay(500);
+        await Task.Delay(200);
 
         Room exist = memoryCache.Get<Room>(login.RoomName);
         if (exist != null && exist.Users.Any(x => x.Name == login.UserName))
@@ -119,10 +118,9 @@
             await JoinRoom();
         }
 
-        await Task.Delay(500);
+        await Task.Delay(200);
 
         isSubmitting = true;
-        StateHasChanged();
     }
 
 
