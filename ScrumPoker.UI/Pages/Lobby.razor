@@ -8,7 +8,7 @@
     <div class="task-panel-header">
         <div class="row mb-2">
             <div class="col">
-                <button type="button" class="btn btn-danger btn-sm ml-2 float-right" @onclick="@(p=>LeaveRoom(Username))"><i class="fas fa-sign-out-alt fa-lg"></i>&nbsp;Quit</button>
+                <button type="button" class="btn btn-danger btn-sm ml-2 float-right" @onclick="@(p=>Quit())"><i class="fas fa-sign-out-alt fa-lg"></i>&nbsp;Quit</button>
                 <TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
             </div>
         </div>
@@ -306,6 +306,15 @@
     {
         hubConnection.SendAsync("LeaveRoomAsync", room.Name, userName);
     }
+
+    void Quit()
+    {
+        hubConnection.SendAsync("LeaveRoomAsync", room.Name, Username);
+        localStorage.ClearAsync();
+        NavigationManager.NavigateTo("/");
+        hubConnection.StopAsync();
+    }
+
 
     private bool isAdmin()
     {
