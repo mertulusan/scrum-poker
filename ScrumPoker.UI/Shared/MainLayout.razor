@@ -1,17 +1,59 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager navigationManager
+@inject ILocalStorageService localStorage
+@inject IMemoryCache memoryCache
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <div class="main">
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
-
-        <div class="content px-4">
+<div class="page @(isDarkMode ? "theme-dark":"")">
+    <div class="content">
+        <div class="container-fluid">
             @Body
+            <div class="footer fixed">
+                <div class="float-right">
+                    <div><input type="checkbox" checked="@isDarkMode" @onchange="DarkModeChanged" class="form-check-input cursor-pointer" />Dark Mode</div>
+                </div>
+                <div>
+                    <strong>Copyright</strong> © 2021
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+
+@code
+{
+    private bool isDarkMode = true;
+    private HubConnection hubConnection;
+    private string roomName;
+    private string userName;
+
+    private void DarkModeChanged() => isDarkMode = !isDarkMode;
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetLocalStorage();
+            if (string.IsNullOrEmpty(roomName) || string.IsNullOrEmpty(userName))
+                navigationManager.NavigateTo("/");
+            else
+            {
+                Room room = memoryCache.Get<Room>(roomName);
+                if (room != null && room.Users.Any(x => x.Name == userName))
+                    navigationManager.NavigateTo($"/lobby/{roomName}/{userName}");
+                else
+                {
+                    await localStorage.ClearAsync();
+                    navigationManager.NavigateTo("/");
+                }
+            }
+        }
+    }
+
+    async Task GetLocalStorage()
+    {
+        roomName = await localStorage.GetItemAsync<string>("roomName");
+        userName = await localStorage.GetItemAsync<string>("userName");
+    }
+}

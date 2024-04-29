@@ -1,0 +1,35 @@
+﻿@inject NavigationManager NavigationManager
+@inject ILocalStorageService localStorage
+
+
+<div class="modal fade" style="display:contents" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Scrum voting ended</h5>
+                </div>
+                <div class="modal-body">
+                    <h3>@room.Winner</h3>
+                </div>
+                <div class="modal-footer">
+                    <ExcelComponent room="@room" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+@code {
+    [Parameter] public Room room { get; set; }
+
+    [Parameter] public HubConnection hubConnection { get; set; }
+
+    [Parameter] public string username { get; set; }
+
+    void LeaveRoom(string userName)
+    {
+        hubConnection.SendAsync("LeaveRoomAsync", room.Name, username);
+        localStorage.ClearAsync();
+        NavigationManager.NavigateTo("/");
+        hubConnection.StopAsync();
+    }
+}

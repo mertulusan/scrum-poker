@@ -1,0 +1,364 @@
+﻿@page "/lobby/{roomName}/{userName}"
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService localStorage
+@using BlafettisLib
+
+<div class="task-panel">
+    @*   Left Panel   *@
+    <div class="task-panel-header">
+        <div class="row mb-2">
+            <div class="col">
+                <button type="button" class="btn btn-danger btn-sm ml-2 float-right" @onclick="@(p=>Quit())" disabled="@isDisabled"><i class="fas fa-sign-out-alt fa-lg"></i>&nbsp;Quit</button>
+                <TimerComponent room="@room" hubConnection="@hubConnection" username="@Username" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col p-0">
+                <div class="card card-body">
+                    <small>Room</small>
+                    <h3>@RoomName</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <Tabs>
+            @if (room != null && room.Users.Any())
+            {
+                <Tab>
+                    <Header>
+                        <i class="fas fa-users" style="margin:5px"></i>
+                        <span class="badge badge-danger">
+                            @room?.Users?.Count
+                        </span>
+                    </Header>
+                    <ChildContent>
+                        <UserListComponent users="@room.Users" />
+                    </ChildContent>
+                </Tab>
+            }
+            @if (room != null && room.VotedTaskList.Any())
+            {
+                <Tab>
+                    <Header>
+                        <i class="fas fa-list" style="margin:5px"></i>
+                        <span class="badge badge-primary"> @room?.VotedTaskList?.Count</span>
+                    </Header>
+                    <ChildContent>
+                        <TaskListComponent room="@room" />
+                    </ChildContent>
+                </Tab>
+            }
+        </Tabs>
+    </div>
+</div>
+
+
+<div class="content-panel animated fadeInRight">
+    @if (room?.SessionIsEnd == true)
+    {
+        <FinishVotingComponent room="@room" hubConnection="@hubConnection" username="@Username" />
+    }
+    else if (room?.VotingTask?.Status == null)
+    {
+        <div class="card">
+            <div class="card-body justify-content-center">
+                <button type="button" class="btn btn-success mr-1" @onclick="StartVoting">Start Voting</button>
+                <button type="button" class="btn btn-danger" @onclick="@FinishSession">Finish Session</button>
+            </div>
+        </div>
+
+        @if (developers?.Count > 0)
+        {
+            @for (int i = 0; i < developers.Count; i += 5)
+            {
+                <div class="row d-flex justify-content-center ">
+                    <div class="user-list">
+                        @foreach (var developer in developers.Skip(i).Take(5))
+                        {
+                            <div class="user-card">
+                                <div class="user-card-title">
+                                    @if (isAdmin())
+                                    {
+                                        <a class="float-right text-danger mr-1" @onclick="@(p=>LeaveRoom(developer.Name))"><i class="fas fa-times fa-lg"></i></a>
+                                    }
+                                </div>
+                                <div class="user-card-content">
+                                    <h2 class="text-break">@developer.Name</h2>
+                                    <span class="badge  @(developer.IsActive ? "badge-success" : "badge-danger") text-white">@(developer.IsActive ? "online" : "offline")</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    }
+    else if (room?.VotingTask?.Status == JiraTaskStatus.Completed)
+    {
+        <div class="card">
+            <div class="card-body justify-content-center">
+                <h1 class="float-right d-inline-block">@room.VotingTask.Average.ToString("###.##")</h1>
+                <h2 class="float-right d-inline-block">Avarage:&nbsp;</h2> 
+                @if (RoleType.GUEST != (RoleType)userRole)
+                {
+                    <div class="btn-group float-left" role="group">
+                        <button type="button" class="btn btn-success" @onclick="RestartVoting">Restart Voting</button>
+                        <button type="button" class="btn btn-primary" @onclick=@(() => comfirmedTaskPoint = VotePointHelper.GetNearestCard(room.Users.Where(p => p.Point != null).Select(s => (CardPoints)s.Point).ToList()))>
+                            Save Task
+                        </button>
+                    </div>
+                }
+                @if (comfirmedTaskPoint != null)
+                {
+                    <br />
+                    <hr />
+                    <div class="form-group row">
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <select class="form-control float-right" @bind=@comfirmedTaskPoint>
+                                        @foreach (var card in Enum.GetValues(typeof(CardPoints)).Cast<CardPoints>().ToList())
+                                        {
+                                            <option value=@card>@ScrumPoker.Model.Extensions.GetEnumDescription(card)</option>
+                                        }
+                                    </select>
+                                </div>
+                                <input type="text" class="form-control" placeholder="Task Name" @bind=@votedTaskName>
+                                <div class="input-group-append">
+                                    <button class="btn btn-success" type="button" @onclick="SaveVoting">Save Voting</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (developers?.Count > 0)
+        {
+            <div class="row d-flex justify-content-center">
+                <div class="user-list">
+                    @for (int i = 0; i < developers.Count; i += 5)
+                    {
+                        @foreach (var developer in developers.Skip(i).Take(5))
+                        {
+                            <div class="user-card">
+                                <div class="user-card-title">
+                                    @if (isAdmin())
+                                    {
+                                        <a class="float-right text-danger mr-1" @onclick="@(p=>LeaveRoom(developer.Name))"><i class="fas fa-times fa-lg"></i></a>
+                                    }
+                                </div>
+                                <div class="user-card-content">
+                                    <h2 class="text-break">@developer.Name</h2>
+                                    @if (developer.Point == CardPoints.Devide)
+                                    {
+                                        <span class="badge badge-primary"><i class="fas fa-divide fa-2x"></i></span>
+                                    }
+                                    else if (developer.Point == CardPoints.DontUnderstand)
+                                    {
+                                        <span class="badge badge-primary"><i class="fas fa-question fa-2x"></i></span>
+                                    }
+                                    else if (developer.Point == CardPoints.CoffeeBreak)
+                                    {
+                                        <span class="badge badge-primary"><i class="fas fa-mug-hot fa-2x"></i></span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-primary user-card-point">@ScrumPoker.Model.Extensions.GetEnumDescription(@developer.Point)</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+    }
+    else if (RoleType.DEV != developers?.FirstOrDefault(x => x.Name == Username)?.Role || room?.VotingTask?.Status == JiraTaskStatus.Voting && developers?.FirstOrDefault(x => x.Name == Username)?.Point != null)
+    {
+
+        @if (RoleType.GUEST != (RoleType)userRole)
+        {
+            <div class="card">
+                <div class="card-body justify-content-center">
+                    <button type="button" class="btn btn-danger btn-md" @onclick="StopVoting">Stop Voting</button>
+                </div>
+            </div>
+        }
+
+        @if (developers?.Count > 0)
+        {
+            <div class="row d-flex justify-content-center">
+                <div class="user-list">
+                    @for (int i = 0; i < developers.Count; i += 5)
+                    {
+
+                        @foreach (var developer in developers.Skip(i).Take(5))
+                        {
+                            <div class="user-card">
+                                <div class="user-card-title">
+                                    @if (isAdmin())
+                                    {
+                                        <a class="float-right text-danger mr-1" @onclick="@(p=>LeaveRoom(developer.Name))"><i class="fas fa-times fa-lg"></i></a>
+                                    }
+                                </div>
+                                <div class="user-card-content @(developer.Point==null?"sk-loading":"") ">
+                                    <h2 class="text-break">@developer.Name</h2>
+
+                                    <div class="sk-spinner sk-spinner-wave">
+                                        <div class="sk-rect1"></div>
+                                        <div class="sk-rect2"></div>
+                                        <div class="sk-rect3"></div>
+                                        <div class="sk-rect4"></div>
+                                        <div class="sk-rect5"></div>
+                                    </div>
+                                    <span class="badge @(developer.IsActive && developer.Point != null ? "badge-success" : "badge-warning")">@(developer.IsActive ? (developer.Point != null ? "voted" : "") : "offline")</span>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <Voting votinghubConnection=@hubConnection votingRoom=@room user=@developers?.FirstOrDefault(x => x.Name == Username) />
+    }
+
+</div>
+
+<Blafettis @ref="blafettis" style="position: absolute; bottom: 100px; right: 50%; left: 50%; z-index:9999999" angle="90" spread="140" startVelocity="67" elementCount="175" duration="1300" stagger="0" dragFriction="0.1" />
+
+@code {
+    [Parameter] public string RoomName { get; set; }
+    [Parameter] public string Username { get; set; }
+
+    protected Blafettis blafettis;
+
+    private int userRole { get; set; }
+
+    private string taskName;
+    private CardPoints agreedCard;
+
+    private HubConnection hubConnection;
+    private Room room;
+
+    private List<User> developers;
+
+    private string votedTaskName;
+    private CardPoints? comfirmedTaskPoint;
+    private int nearestPoint;
+
+    private bool isDisabled;
+    private bool isFinish;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        hubConnection = new HubConnectionBuilder()
+        .WithUrl(NavigationManager.ToAbsoluteUri("/roomhub"))
+        .Build();
+
+        hubConnection.On<Room>("ReceiveMessage", (data) =>
+        {
+            room = data;
+            if (data.Users.FirstOrDefault(p => p.Name.Equals(Username)) == null)
+                Quit();
+
+            developers = data.Users.Where(x => x.Role == RoleType.DEV).ToList();
+
+            if (!isFinish && data.SessionIsEnd) 
+                Confetti();
+
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+        await hubConnection.SendAsync("GetGroupMessages", RoomName);
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        userRole = await localStorage.GetItemAsync<int>("userRole");
+
+        StateHasChanged();
+    }
+
+    protected async Task StartVoting()
+    {
+        var task = new JiraTask
+        {
+            Status = JiraTaskStatus.Voting
+        };
+
+        await hubConnection.SendAsync("StartVoting", RoomName, task);
+    }
+
+    protected async Task RestartVoting()
+    {
+        comfirmedTaskPoint = null;
+        await hubConnection.SendAsync("RestartVoting", RoomName);
+    }
+
+    void LeaveRoom(string userName)
+    {
+        hubConnection.SendAsync("LeaveRoomAsync", room.Name, userName);
+    }
+
+    void Quit()
+    {
+        hubConnection.SendAsync("LeaveRoomAsync", room.Name, Username);
+        localStorage.ClearAsync();
+        NavigationManager.NavigateTo("/");
+        hubConnection.StopAsync();
+    }
+
+
+    private bool isAdmin()
+    {
+        return ((int)userRole == (int)RoleType.SM || (int)userRole == (int)RoleType.PO);
+    }
+
+
+    protected async Task SaveVoting()
+    {
+        await hubConnection.SendAsync("SaveTask", RoomName, votedTaskName, comfirmedTaskPoint);
+
+        votedTaskName = string.Empty;
+        comfirmedTaskPoint = null;
+    }
+
+    protected async Task StopVoting()
+    {
+        await hubConnection.SendAsync("StopVoting", RoomName);
+    }
+
+    protected async Task FinishSession()
+    {
+        await hubConnection.SendAsync("FinishSession", RoomName);
+    }
+
+    protected async Task Confetti()
+    {
+        isDisabled = true;
+
+        for (int p = 0; p < 3; p++)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                blafettis.RaiseConfetti();
+                await Task.Delay(400);
+            }
+
+            await Task.Delay(1200);
+        }
+
+        isDisabled = false;
+        isFinish = true;
+    }
+}

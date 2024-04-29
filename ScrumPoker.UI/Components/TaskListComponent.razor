@@ -1,0 +1,45 @@
+﻿@using BlazorDownloadFile
+
+<div class="panel-body">
+    <br />
+    <div class="table-responsive">
+        <table class="table table-hover margin bottom text-wrap align-middle" style="table-layout:fixed;">
+            <caption style="caption-side: top;">
+                <ExcelComponent room="@room" />
+            </caption>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th colspan="5">Name</th>
+                    <th colspan="2">Point</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var task in room.VotedTaskList)
+                {
+                    <tr>
+                        <td>@task.Id </td>
+                        <td colspan="5">
+                            @if (task.Name.Length > 10 && (task.Name.Substring(0, 7).Equals("http://") || task.Name.Substring(0, 8).Equals("https://")))
+                            {
+                                <a href="@task.Name" target="_blank">@task.Name</a>
+                            }
+                            else
+                            {
+                                <span> @task.Name </span>
+                            }
+                        </td>
+                        <td colspan="2">
+                            <span class="badge badge-primary text-wrap">@(task.ComfirmedPoint.GetEnumDescription())</span>
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Room room { get; set; }
+}

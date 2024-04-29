@@ -1,0 +1,55 @@
+﻿@implements IDisposable
+@inject NavigationManager NavigationManager
+
+<button class="btn-timer @(remainingMinute <= 10? "btn-danger": "btn-default")" @onclick="AddTime">
+    <i class="fas fa-clock fa-lg mt-1"></i>&nbsp;
+    <span class="clock-span">@(remainingMinute > 0 ? remainingMinute : "0")<small>min</small></span>
+</button>
+
+
+@code {
+    [Parameter]
+    public Room room { get; set; }
+    [Parameter]
+    public HubConnection hubConnection { get; set; }
+    [Parameter]
+    public string username { get; set; }
+
+    private int remainingMinute { get; set; }
+
+    private Timer timer = new(1000);
+
+    protected override void OnInitialized()
+    {
+        timer.Elapsed += (sender, eventArgs) => OnTimerCallback();
+        timer.Start();
+
+        remainingMinute = Convert.ToInt32(DateTime.Now.AddMinutes(20).Subtract(DateTime.Now).TotalMinutes);
+    }
+
+    private void OnTimerCallback()
+    {
+        _ = InvokeAsync(() =>
+        {
+            var leftTime = room.EndDate.Subtract(DateTime.Now).TotalMinutes;
+            remainingMinute = Convert.ToInt32(leftTime);
+            if (remainingMinute <= 0)
+            {
+                hubConnection.SendAsync("CloseRoomAsync", room.Name);
+                hubConnection.StopAsync();
+                NavigationManager.NavigateTo($"/");
+            }
+            StateHasChanged();
+        });
+    }
+
+    private void AddTime()
+    {
+        var authRoles = new RoleType[] { RoleType.SM, RoleType.PO };
+        var role = room.Users.FirstOrDefault(p => p.Name == username).Role;
+        if (remainingMinute <= 10 && authRoles.Any(p => p == role))
+            hubConnection.SendAsync("AddTimeRoom", room.Name);
+    }
+
+    public void Dispose() => timer.Dispose();
+}
